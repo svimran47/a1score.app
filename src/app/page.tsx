@@ -16,7 +16,7 @@ import { getPlayerSlug } from "@/lib/slugs";
 import { SITE_URL } from "@/lib/siteUrl";
 import type { FotmobMatch } from "@/lib/fotmob/client";
 
-export const revalidate = 30;
+export const revalidate = 300;
 export const runtime = "edge";
 
 interface HomeTransferItem {
