@@ -138,12 +138,6 @@ export const DRAWER_ITEMS = [
     icon: Newspaper,
     isActive: (p: string) => p === "/news" || p.startsWith("/news/"),
   },
-  {
-    name: "Methodology",
-    href: "/methodology",
-    icon: Trophy,
-    isActive: (p: string) => p === "/methodology" || p.startsWith("/methodology/"),
-  },
 ];
 
 function TopNavContent() {
@@ -194,7 +188,7 @@ function TopNavContent() {
             <Link
               href="/"
               className="flex items-center gap-2.5 group rounded-xl p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
-              aria-label="a1score home"
+              aria-label="a1score.app home"
             >
               <div className="w-9 h-9 rounded-xl bg-[var(--accent)] text-[var(--accent-contrast)] flex items-center justify-center font-black text-base sm:text-lg shadow-sm">
                 A1

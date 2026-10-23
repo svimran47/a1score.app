@@ -21,7 +21,6 @@ const SEED_PAGES = [
   "/players",
   "/clubs",
   "/leagues",
-  "/methodology",
   "/privacy",
   "/terms",
   "/clubs/manchester-city-cmuihq3vs0069h29ebm5xqhye",

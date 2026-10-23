@@ -11,7 +11,6 @@ const exploreLinks = [
   { label: "Market Values", href: "/values" },
   { label: "Transfers", href: "/transfers" },
   { label: "News", href: "/news" },
-  { label: "Methodology", href: "/methodology" },
 ];
 
 const topLeagues = [
@@ -100,12 +99,6 @@ export function Footer() {
         <div className="pt-4 sm:pt-6 border-t border-[var(--divider)] flex flex-wrap items-center justify-between gap-3 text-xs text-[var(--text-muted)]">
           <p>© {currentYear} a1score.app. All rights reserved.</p>
           <div className="flex items-center gap-4 sm:gap-6 flex-wrap">
-            <Link
-              href="/methodology"
-              className="min-h-[44px] flex items-center hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] rounded px-1 transition-colors"
-            >
-              Methodology
-            </Link>
             <Link
               href="/privacy"
               className="min-h-[44px] flex items-center hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] rounded px-1 transition-colors"

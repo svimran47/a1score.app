@@ -3,16 +3,18 @@ import { MatchesClient } from "@/components/MatchesClient";
 import { getDefaultMatchDate } from "@/lib/date-utils";
 import { FOTMOB_TEAM_MAPPINGS } from "@/lib/league-mappings";
 import { matchPassesFilter, matchesWithMappedClubs } from "@/lib/matches/following";
+import { constructMetadata, SITE_URL } from "@/lib/metadata";
 import type { Metadata } from "next";
 
 export const revalidate = 30; // Dynamic edge revalidation for live match updates
 export const runtime = "edge";
 
-export const metadata: Metadata = {
-  title: "Matches — Scores, Lineups & Squad Values",
+export const metadata: Metadata = constructMetadata({
+  title: "Live Football Matches — Scores, Lineups & Squad Values",
   description:
-    "Match scores, in-play timeline events, confirmed tactical lineups, and squad market values on a1score.app.",
-};
+    "Live match scores, confirmed lineups, in-play timeline events, and squad market valuations across Europe's top leagues on a1score.",
+  path: "/matches",
+});
 
 interface MatchesPageProps {
   searchParams: {
@@ -84,20 +86,35 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
     matchPassesFilter(row.match, activeFilter)
   );
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Matches", item: `${SITE_URL}/matches` },
+    ],
+  };
+
   return (
-    <MatchesClient
-      followCandidates={followCandidates}
-      activeDate={activeDate}
-      activeFilter={activeFilter}
-      activeScope={activeScope}
-      autoSwitched={autoSwitched}
-      leagues={leagues}
-      totalScopedMatches={totalScopedMatches}
-      liveScopedMatchesCount={liveScopedMatchesCount}
-      finishedScopedMatchesCount={finishedScopedMatchesCount}
-      upcomingScopedMatchesCount={upcomingScopedMatchesCount}
-      totalAllMatchesCount={totalAllMatchesCount}
-      fetchedAt={fetchedAt}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <MatchesClient
+        followCandidates={followCandidates}
+        activeDate={activeDate}
+        activeFilter={activeFilter}
+        activeScope={activeScope}
+        autoSwitched={autoSwitched}
+        leagues={leagues}
+        totalScopedMatches={totalScopedMatches}
+        liveScopedMatchesCount={liveScopedMatchesCount}
+        finishedScopedMatchesCount={finishedScopedMatchesCount}
+        upcomingScopedMatchesCount={upcomingScopedMatchesCount}
+        totalAllMatchesCount={totalAllMatchesCount}
+        fetchedAt={fetchedAt}
+      />
+    </>
   );
 }

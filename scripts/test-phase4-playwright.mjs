@@ -28,7 +28,6 @@ const PAGES = [
   { name: "player_detail", path: "/players/lamine-yamal-937958" },
   { name: "clubs", path: "/clubs" },
   { name: "leagues", path: "/leagues" },
-  { name: "methodology", path: "/methodology" },
 ];
 
 async function run() {

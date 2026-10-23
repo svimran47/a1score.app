@@ -15,8 +15,18 @@ export async function POST(req: NextRequest) {
       return new NextResponse(null, { status: 400 });
     }
 
-    // In production, aggregate counter metrics can be piped to Cloudflare Analytics Engine or Supabase
-    // Logging in development/preview:
+    // Persist to analytics_events table asynchronously
+    try {
+      const { getSupabaseAdmin } = await import("@/lib/admin/supabase-admin");
+      const supabaseAdmin = getSupabaseAdmin();
+      void supabaseAdmin.from("analytics_events").insert({
+        name: sanitized.event,
+        payload: sanitized,
+      });
+    } catch {
+      // ignore telemetry write failures
+    }
+
     if (process.env.NODE_ENV !== "production") {
       console.log(`[Analytics Event] ${sanitized.event}`, sanitized.category || "");
     }

@@ -122,6 +122,25 @@ export default async function ClubPage({ params }: ClubPageProps) {
     sport: "Football",
     logo: club.logoUrl || undefined,
     url: `${SITE_URL}/clubs/${canonicalSlug}`,
+    mainEntityOfPage: `${SITE_URL}/clubs/${canonicalSlug}`,
+    ...(club.country
+      ? {
+          location: {
+            "@type": "Place",
+            address: {
+              "@type": "PostalAddress",
+              addressCountry: club.country,
+            },
+          },
+        }
+      : {}),
+    ...(club.transfermarktId
+      ? {
+          sameAs: [
+            `https://www.transfermarkt.com/verein/spielplan/verein/${club.transfermarktId}`,
+          ],
+        }
+      : {}),
     award: honoursAwards.length > 0 ? honoursAwards : undefined,
     memberOf: club.league
       ? {

@@ -9,7 +9,7 @@
         "http://localhost:3000/news",
         "http://localhost:3000/transfers",
         "http://localhost:3000/compare",
-        "http://localhost:3000/methodology"
+        "http://localhost:3000/leagues"
       ],
       "numberOfRuns": 1,
       "settings": {

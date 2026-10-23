@@ -23,6 +23,25 @@ export const metadata: Metadata = {
   },
   description:
     "Football platform combining match fixtures and scores with player market valuation updates and club records.",
+  keywords: [
+    "football market values",
+    "player valuations",
+    "transfer market",
+    "live football scores",
+    "squad market value",
+    "football analytics",
+    "transfer news",
+    "live football lineups",
+    "football transfers",
+    "soccer valuations",
+    "a1score",
+  ],
+  authors: [{ name: "a1score", url: SITE_URL }],
+  creator: "a1score",
+  publisher: "a1score",
+  applicationName: "a1score",
+  category: "sports",
+  classification: "Football Analytics and Market Values",
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -46,6 +65,8 @@ export const metadata: Metadata = {
     description:
       "Football platform: match scores, player market valuation updates, and club records.",
     images: [`${SITE_URL}/og-default.png`],
+    creator: "@a1score",
+    site: "@a1score",
   },
   robots: {
     index: true,
@@ -60,6 +81,21 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: SITE_URL,
+    types: {
+      "application/rss+xml": `${SITE_URL}/feed.xml`,
+    },
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "QSMFfmlwS2jeM9E-RsjdN94YHPpTGdoL2gu_6NH-Hg0",
+    yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION || undefined,
+    other: {
+      ...(process.env.NEXT_PUBLIC_BING_VERIFICATION
+        ? { "msvalidate.01": process.env.NEXT_PUBLIC_BING_VERIFICATION }
+        : {}),
+      ...(process.env.NEXT_PUBLIC_BAIDU_VERIFICATION
+        ? { "baidu-site-verification": process.env.NEXT_PUBLIC_BAIDU_VERIFICATION }
+        : {}),
+    },
   },
   manifest: "/manifest.webmanifest",
   icons: {
@@ -97,6 +133,7 @@ export default function RootLayout({
     <html lang="en" className={`${archivo.variable} dark`} data-theme="dark" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+        <link rel="alternate" type="application/rss+xml" title="a1score RSS Feed" href={`${SITE_URL}/feed.xml`} />
       </head>
       <body className="min-h-screen flex flex-col font-sans antialiased transition-colors duration-200" style={{ backgroundColor: "var(--bg-page)", color: "var(--text-primary)", fontFamily: "var(--font-sans)" }}>
         <CapacitorBridge />

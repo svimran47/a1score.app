@@ -42,10 +42,25 @@ export interface MetadataOptions {
   path?: string;
   image?: string;
   noIndex?: boolean;
+  keywords?: string[] | string;
+  type?: "website" | "article" | "profile";
 }
 
+const DEFAULT_KEYWORDS = [
+  "football market values",
+  "player valuations",
+  "transfer market",
+  "football live scores",
+  "squad market value",
+  "football analytics",
+  "transfer news",
+  "live football lineups",
+  "football transfers",
+  "a1score",
+];
+
 /**
- * Unified metadata helper enforcing consistent titles, canonicals, og:url, and robots.
+ * Unified metadata helper enforcing consistent titles, canonicals, og:url, keywords, and robots.
  */
 export function constructMetadata({
   title,
@@ -53,6 +68,8 @@ export function constructMetadata({
   path = "",
   image,
   noIndex = false,
+  keywords = DEFAULT_KEYWORDS,
+  type = "website",
 }: MetadataOptions): Metadata {
   const baseUrl = getEffectiveSiteUrl();
   const fullTitle = formatTitle(title);
@@ -67,6 +84,7 @@ export function constructMetadata({
   return {
     title: fullTitle,
     description,
+    keywords,
     alternates: {
       canonical: canonicalUrl,
     },
@@ -76,7 +94,7 @@ export function constructMetadata({
       url: canonicalUrl,
       siteName: "a1score",
       images: [{ url: ogImage, width: 1200, height: 630, alt: fullTitle }],
-      type: "website",
+      type,
       locale: "en_US",
     },
     twitter: {
@@ -84,12 +102,28 @@ export function constructMetadata({
       title: fullTitle,
       description,
       images: [ogImage],
+      creator: "@a1score",
+      site: "@a1score",
     },
     robots: noIndex
       ? {
           index: false,
           follow: false,
+          googleBot: {
+            index: false,
+            follow: false,
+          },
         }
-      : undefined,
+      : {
+          index: true,
+          follow: true,
+          googleBot: {
+            index: true,
+            follow: true,
+            "max-video-preview": -1,
+            "max-image-preview": "large",
+            "max-snippet": -1,
+          },
+        },
   };
 }

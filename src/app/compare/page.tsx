@@ -35,15 +35,21 @@ export async function generateMetadata({ searchParams }: ComparePageProps): Prom
     title,
     description: description.length > 155 ? description.slice(0, 152) + "..." : description,
     path: "/compare",
+    noIndex: slugs.length > 0,
   });
 
   return {
     ...baseMeta,
-    // Task 6: Canonical for compare pages (noindex for arbitrary combinations)
-    robots: {
-      index: false,
-      follow: true,
-    },
+    robots:
+      slugs.length > 0
+        ? {
+            index: false,
+            follow: true,
+          }
+        : {
+            index: true,
+            follow: true,
+          },
     alternates: {
       canonical: `${SITE_URL}/compare`,
     },
@@ -101,8 +107,35 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
     }
   }
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Compare Players", item: `${SITE_URL}/compare` },
+    ],
+  };
+
+  const webAppJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "a1score Player Comparison",
+    url: `${SITE_URL}/compare`,
+    applicationCategory: "SportsApplication",
+    operatingSystem: "All",
+    description: "Compare football player market valuations, career trajectories, and facts side-by-side.",
+  };
+
   return (
     <main className="min-h-screen pt-4 sm:pt-6 px-4">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppJsonLd) }}
+      />
       <CompareClient initialPlayers={initialPlayers} initialSlugs={rawSlugs} />
     </main>
   );

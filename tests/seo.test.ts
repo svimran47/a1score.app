@@ -191,3 +191,71 @@ test("SEO Origin Parity - sitemap, robots, and metadata canonicals share exact S
   assert.equal(new URL((meta.openGraph as any)?.url).origin, parsedSiteUrl.origin);
   assert.equal(meta.title, "Test Page | a1score");
 });
+
+test("SEO Robots - multi-bot coverage and host directive", () => {
+  const r = robots();
+  assert.equal(r.host, "a1score.app");
+  const rules = Array.isArray(r.rules) ? r.rules : [r.rules];
+  const userAgents = rules.map((rule) => rule.userAgent);
+  assert.ok(userAgents.includes("*"));
+  assert.ok(userAgents.includes("Googlebot"));
+  assert.ok(userAgents.includes("Bingbot"));
+  assert.ok(userAgents.includes("Applebot"));
+  assert.ok(userAgents.includes("YandexBot"));
+
+  // Check disallow rules are present
+  const starRule = rules.find((rule) => rule.userAgent === "*");
+  const disallowed = Array.isArray(starRule?.disallow) ? starRule?.disallow : [starRule?.disallow];
+  assert.ok(disallowed.includes("/search"));
+  assert.ok(disallowed.includes("/api/"));
+  assert.ok(disallowed.includes("/admin/"));
+  assert.ok(disallowed.includes("/maintenance"));
+  assert.ok(disallowed.includes("/signin"));
+  assert.ok(disallowed.includes("/settings"));
+});
+
+test("SEO Sitemap - includes tool routes (compare, lineup-builder, predict)", async () => {
+  const entries = await sitemap();
+  const urls = entries.map((e) => e.url);
+
+  assert.ok(urls.some((u) => u.endsWith("/compare")), "Must include /compare");
+  assert.ok(urls.some((u) => u.endsWith("/lineup-builder")), "Must include /lineup-builder");
+  assert.ok(urls.some((u) => u.endsWith("/predict")), "Must include /predict");
+});
+
+test("SEO JSON-LD - Schema.org WebSite with SearchAction and Organization structure", () => {
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "a1score",
+    alternateName: ["a1score.app", "A1 Score"],
+    url: "https://a1score.app",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: "https://a1score.app/search?q={search_term_string}",
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+
+  assert.equal(websiteSchema["@context"], "https://schema.org");
+  assert.equal(websiteSchema["@type"], "WebSite");
+  assert.equal(websiteSchema.name, "a1score");
+  assert.equal(websiteSchema.potentialAction["@type"], "SearchAction");
+  assert.ok(websiteSchema.potentialAction.target.urlTemplate.includes("search?q="));
+
+  const orgSchema = {
+    "@context": "https://schema.org",
+    "@type": "SportsOrganization",
+    name: "a1score",
+    url: "https://a1score.app",
+    logo: "https://a1score.app/icon-512.png",
+  };
+
+  assert.equal(orgSchema["@type"], "SportsOrganization");
+  assert.equal(orgSchema.name, "a1score");
+  assert.equal(orgSchema.logo, "https://a1score.app/icon-512.png");
+});
+

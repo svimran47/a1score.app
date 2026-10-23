@@ -9,7 +9,20 @@ export async function POST(req: NextRequest) {
       return new NextResponse(null, { status: 400 });
     }
 
-    // In production, aggregate vitals (LCP, INP, CLS) can be logged or piped to Cloudflare Analytics Engine
+    // Persist to web_vitals table asynchronously
+    try {
+      const { getSupabaseAdmin } = await import("@/lib/admin/supabase-admin");
+      const supabaseAdmin = getSupabaseAdmin();
+      void supabaseAdmin.from("web_vitals").insert({
+        metric: json.name,
+        value: json.value,
+        rating: json.rating || "good",
+        path: json.path || "/",
+      });
+    } catch {
+      // ignore telemetry write failures
+    }
+
     if (process.env.NODE_ENV !== "production") {
       console.log(`[Web Vital] ${json.name}: ${json.value} (${json.rating || "unrated"}) - Path: ${json.path || "/"}`);
     }

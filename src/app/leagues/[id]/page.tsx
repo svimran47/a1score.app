@@ -65,6 +65,8 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
     name: league.name,
     sport: "Football",
     url: `${SITE_URL}/leagues/${canonicalSlug}`,
+    mainEntityOfPage: `${SITE_URL}/leagues/${canonicalSlug}`,
+    description: `${league.name} standings, clubs, top players, and squad market values on a1score.`,
     subOrganization: league.clubs?.slice(0, 30).map((c) => ({
       "@type": "SportsTeam",
       name: c.name,

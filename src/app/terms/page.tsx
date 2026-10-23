@@ -1,4 +1,4 @@
-import { constructMetadata } from "@/lib/metadata";
+import { constructMetadata, SITE_URL } from "@/lib/metadata";
 import Link from "next/link";
 import { FileText, AlertCircle, Scale, ShieldAlert, ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
@@ -14,8 +14,21 @@ export const metadata: Metadata = constructMetadata({
 export default function TermsPage() {
   const lastUpdated = "September 30, 2026";
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Terms of Service", item: `${SITE_URL}/terms` },
+    ],
+  };
+
   return (
     <div className="max-w-4xl mx-auto py-8 sm:py-12 px-4 sm:px-6 space-y-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       {/* Header */}
       <div className="space-y-4">
         <Link

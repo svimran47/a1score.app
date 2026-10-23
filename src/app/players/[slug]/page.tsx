@@ -97,9 +97,28 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     "@context": "https://schema.org",
     "@type": "Person",
     name: identity.fullName,
+    url: canonicalUrl,
+    mainEntityOfPage: canonicalUrl,
+    ...(identity.position ? { jobTitle: identity.position } : {}),
     ...(identity.photoUrl ? { image: identity.photoUrl } : {}),
     ...(identity.nationality ? { nationality: identity.nationality } : {}),
     ...(identity.dob ? { birthDate: identity.dob.split("T")[0] } : {}),
+    ...(identity.heightCm
+      ? {
+          height: {
+            "@type": "QuantitativeValue",
+            value: identity.heightCm,
+            unitCode: "CMT",
+          },
+        }
+      : {}),
+    ...(identity.key && /^\d+$/.test(identity.key)
+      ? {
+          sameAs: [
+            `https://www.transfermarkt.com/player/profil/spieler/${identity.key}`,
+          ],
+        }
+      : {}),
     ...(awardsList.length > 0 ? { award: awardsList } : {}),
     ...(club
       ? {

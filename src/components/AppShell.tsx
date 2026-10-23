@@ -1,4 +1,5 @@
 import React from "react";
+import { headers } from "next/headers";
 import { getLeagues } from "@/lib/data/leagues";
 import { getMarketValueMovers } from "@/lib/data/players";
 import { getNews } from "@/lib/data/news";

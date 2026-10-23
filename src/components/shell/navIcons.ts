@@ -1,7 +1,6 @@
 import {
   ArrowLeftRight,
   Bell,
-  BookOpen,
   LayoutGrid,
   Menu,
   Newspaper,
@@ -31,7 +30,6 @@ export const NAV_ICONS: Record<NavIconKey, LucideIcon> = {
   clubs: Shield,
   notifications: Bell,
   settings: Settings,
-  methodology: BookOpen,
   tv: Tv,
   predict: Trophy,
   lineup: LayoutGrid,

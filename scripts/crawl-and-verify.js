@@ -16,7 +16,6 @@ const ROUTES = [
   '/clubs/131',
   '/leagues',
   '/leagues/GB1',
-  '/methodology',
   '/search',
   '/transfers'
 ];

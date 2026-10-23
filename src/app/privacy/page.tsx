@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { constructMetadata } from "@/lib/metadata";
+import { constructMetadata, SITE_URL } from "@/lib/metadata";
 import { ShieldCheck, Database, Lock, Eye, Bell, Megaphone, Mail, ArrowLeft } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import type { Metadata } from "next";
@@ -16,8 +16,21 @@ export const metadata: Metadata = constructMetadata({
 export default function PrivacyPage() {
   const lastUpdated = "October 2026";
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Privacy Policy", item: `${SITE_URL}/privacy` },
+    ],
+  };
+
   return (
     <main className="min-h-screen bg-[var(--bg-page)] text-[var(--text-primary)]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <div className="max-w-4xl mx-auto py-8 sm:py-12 px-4 sm:px-6 space-y-8">
         {/* Navigation & Header */}
         <div className="space-y-4">

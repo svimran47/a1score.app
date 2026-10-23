@@ -10,6 +10,7 @@ const nextConfig = {
       // The Watchlist became the Following tab; keep old links and push
       // notifications that still point at /watchlist working.
       { source: '/watchlist', destination: '/following', permanent: true },
+      { source: '/methodology', destination: '/values', permanent: true },
     ];
   },
   async headers() {

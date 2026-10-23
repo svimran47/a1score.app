@@ -38,6 +38,7 @@ model Player {
   achievements    PlayerAchievement[]
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
+  deletedAt       DateTime?
 
   @@index([fullName])
   @@index([position])
@@ -66,6 +67,7 @@ model Club {
   competitionWinners CompetitionWinner[]
   honours         ClubHonour[]
   valueSnapshots  ClubValueSnapshot[]
+  deletedAt       DateTime?
 
   @@index([leagueId])
   @@index([name])
@@ -84,6 +86,7 @@ model League {
   totalPlayers     Int?     @default(0)
   clubCount        Int?     @default(0)
   clubs            Club[]
+  deletedAt        DateTime?
 }
 
 model MarketValueHistory {
@@ -106,6 +109,7 @@ model Transfer {
   date         DateTime
   feeEur       BigInt?
   transferType String?  // "permanent" | "loan" | "free"
+  deletedAt    DateTime?
 
   @@index([playerId])
   @@index([date])
@@ -238,3 +242,62 @@ model PlayerAchievement {
   @@index([kind])
   @@index([competitionKey])
 }
+
+model AdminUser {
+  userId    String   @id @map("user_id")
+  role      String   @default("admin") // "admin" | "editor" | "viewer"
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("admin_users")
+}
+
+model AppConfig {
+  id                  String   @id @default("default")
+  maintenanceMode     Boolean  @default(false) @map("maintenance_mode")
+  maintenanceMessage  String   @default("We are currently performing scheduled maintenance. Please check back shortly.") @map("maintenance_message")
+  minSupportedVersion String   @default("1.0.0") @map("min_supported_version")
+  latestVersion       String   @default("1.0.0") @map("latest_version")
+  forceUpdate         Boolean  @default(false) @map("force_update")
+  featureFlags        Json     @default("{\"predict\": true, \"tv\": true, \"news\": true, \"compare\": true, \"ads\": false}") @map("feature_flags")
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("app_config")
+}
+
+model AdminAuditLog {
+  id          String   @id @default(uuid())
+  actorUserId String?  @map("actor_user_id")
+  actorEmail  String?  @map("actor_email")
+  action      String   // create | update | delete | restore | trigger | send
+  entity      String   // player | club | league | transfer | market_value | app_config | notification | pipeline | user
+  entityId    String?  @map("entity_id")
+  diff        Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("admin_audit_log")
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(uuid())
+  name      String
+  payload   Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([name, createdAt])
+  @@map("analytics_events")
+}
+
+model WebVital {
+  id        String   @id @default(uuid())
+  metric    String
+  value     Decimal
+  rating    String?
+  path      String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([metric, createdAt])
+  @@map("web_vitals")
+}
+

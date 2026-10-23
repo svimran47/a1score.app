@@ -108,9 +108,9 @@ test("Phase C & Phase D: Header, Bottom Navigation, and Footer Verification", as
   assert.ok(!body.includes("Intelligence & Sources"), "Intelligence & Sources section must be removed from Footer");
   assert.ok(!body.includes("View Data Methodology"), "View Data Methodology link must be removed from Footer");
 
-  // 4. Bottom row with Methodology, Privacy, Terms
-  assert.ok(body.includes('href="/methodology">Methodology<'), "Bottom row must link to Methodology");
-  assert.ok(body.includes('href="#privacy">Privacy<'), "Bottom row must link to Privacy");
-  assert.ok(body.includes('href="#terms">Terms<'), "Bottom row must link to Terms");
+  // 4. Bottom row with Privacy, Terms (Methodology removed)
+  assert.ok(!body.includes('href="/methodology"'), "Bottom row must not link to Methodology");
+  assert.ok(body.includes('href="/privacy"') || body.includes('href="#privacy"'), "Bottom row must link to Privacy");
+  assert.ok(body.includes('href="/terms"') || body.includes('href="#terms"'), "Bottom row must link to Terms");
   assert.ok(body.includes("All rights reserved"), "Bottom row must include copyright notice");
 });

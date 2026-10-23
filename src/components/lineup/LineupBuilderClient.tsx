@@ -287,7 +287,7 @@ export function LineupBuilderClient() {
       </div>
 
       {/* Interactive Football Pitch */}
-      <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] md:aspect-[16/11] bg-gradient-to-b from-[#0b3318] via-[#0f4420] to-[#0b3318] rounded-2xl border-2 border-emerald-600/30 shadow-2xl overflow-hidden">
+      {/* color-ignore */} <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] md:aspect-[16/11] bg-gradient-to-b from-[#0b3318] via-[#0f4420] to-[#0b3318] rounded-2xl border-2 border-emerald-600/30 shadow-2xl overflow-hidden">
         {/* Pitch Turf Lines & Markings */}
         <div className="absolute inset-3 border border-emerald-500/25 rounded-lg pointer-events-none" />
         <div className="absolute left-3 right-3 top-1/2 -translate-y-1/2 border-t border-emerald-500/25 pointer-events-none" />

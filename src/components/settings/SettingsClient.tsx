@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import {
   Bell,
-  BookOpen,
   Check,
   ChevronDown,
   Coins,
@@ -234,7 +233,6 @@ export function SettingsClient({ appVersion }: { appVersion: string }) {
           description={SUPPORT_EMAIL}
           href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("a1score support")}`}
         />
-        <MenuRow icon={BookOpen} label="How we value players" href="/methodology" />
         <MenuRow icon={ShieldCheck} label="Privacy policy" href="/privacy" />
         <MenuRow icon={FileText} label="Terms of use" href="/terms" />
         <MenuRow

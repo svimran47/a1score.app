@@ -13,6 +13,7 @@ import {
 import { sanitizeImageUrl } from "@/lib/image-sanitize";
 import { formatDate } from "@/lib/utils";
 import { getPlayerSlug } from "@/lib/slugs";
+import { SITE_URL } from "@/lib/siteUrl";
 import type { FotmobMatch } from "@/lib/fotmob/client";
 
 export const revalidate = 30;
@@ -116,8 +117,43 @@ export default async function HomePage() {
 
   const clubs = topClubs.slice(0, 5);
 
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "a1score",
+    alternateName: ["a1score.app", "A1 Score"],
+    url: SITE_URL,
+    description: "Football platform combining match fixtures and scores with player market valuation updates and club records.",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SportsOrganization",
+    name: "a1score",
+    url: SITE_URL,
+    logo: `${SITE_URL}/icon-512.png`,
+    description: "Football market intelligence and live match scores platform.",
+    sameAs: ["https://github.com/svimran47/a1score.app"],
+  };
+
   return (
     <div className="space-y-6 max-w-[720px] mx-auto">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
       <h1 className="sr-only">a1score — Football Market Values, Match Scores & Club Records</h1>
       {/* 1. COMPACT LIVE NOW STRIP (Match rows) */}
       <section>

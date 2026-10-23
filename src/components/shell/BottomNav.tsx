@@ -37,6 +37,7 @@ export function BottomNav() {
               <Link
                 href={tab.href}
                 aria-current={active ? "page" : undefined}
+                aria-label={tab.key === "more" ? "More features and settings" : tab.label}
                 className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 min-h-[44px] text-[11px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)] ${
                   active
                     ? "text-[var(--text-primary)] font-bold"

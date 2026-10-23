@@ -45,5 +45,4 @@ test("Navbar DRAWER_ITEMS highlights the correct item across detail and list rou
   assert.deepEqual(getActiveDrawerItems("/leagues/L1"), ["Leagues"]);
   assert.deepEqual(getActiveDrawerItems("/following"), ["Following"]);
   assert.deepEqual(getActiveDrawerItems("/watchlist"), ["Following"]);
-  assert.deepEqual(getActiveDrawerItems("/methodology"), ["Methodology"]);
 });

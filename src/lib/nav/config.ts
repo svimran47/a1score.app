@@ -20,7 +20,6 @@ export type NavIconKey =
   | "clubs"
   | "notifications"
   | "settings"
-  | "methodology"
   | "tv"
   | "predict"
   | "lineup";
@@ -53,7 +52,6 @@ const MORE_ROUTES = [
   "/lineup-builder",
   "/players",
   "/clubs",
-  "/methodology",
   "/privacy",
   "/terms",
 ];

@@ -4,21 +4,35 @@ import { SITE_URL } from "@/lib/siteUrl";
 
 export function middleware(request: NextRequest) {
   const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "";
-  const isPagesDev = host.includes("pages.dev");
+  const { pathname, search } = request.nextUrl;
 
-  if (isPagesDev) {
-    // Retain noindex for non-production preview deployments
-    const isMainPagesDevHost = host === "a1score.pages.dev";
-    if (!isMainPagesDevHost) {
-      const response = NextResponse.next();
-      response.headers.set("X-Robots-Tag", "noindex, nofollow");
-      return response;
-    }
-
-    return NextResponse.next();
+  // Canonical 301 redirect: www.a1score.app -> https://a1score.app
+  if (host === "www.a1score.app" || host.startsWith("www.a1score.app")) {
+    const url = new URL(`${pathname}${search}`, "https://a1score.app");
+    return NextResponse.redirect(url, 301);
   }
 
-  return NextResponse.next();
+  // Canonical 301 redirect: a1score.pages.dev -> https://a1score.app
+  if (host === "a1score.pages.dev") {
+    const url = new URL(`${pathname}${search}`, "https://a1score.app");
+    return NextResponse.redirect(url, 301);
+  }
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", pathname);
+
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  } as any);
+
+  // Prevent search engines from indexing any preview deployments
+  if (host.includes("pages.dev")) {
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
+
+  return response;
 }
 
 export const config = {

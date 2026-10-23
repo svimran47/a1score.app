@@ -61,6 +61,8 @@ export default async function MatchDetailsPage({ params }: MatchPageProps) {
     name: matchTitle,
     sport: "Football",
     url: `${SITE_URL}/matches/${params.id}`,
+    mainEntityOfPage: `${SITE_URL}/matches/${params.id}`,
+    description: `Live match scores and stats for ${matchTitle} on a1score.`,
     startDate: general?.matchTimeUTCDate || undefined,
     eventStatus: status?.finished
       ? "https://schema.org/EventFinished"

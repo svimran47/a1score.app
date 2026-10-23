@@ -1,5 +1,5 @@
 import { getTransfersHubData } from "@/lib/data/transfers";
-import { constructMetadata } from "@/lib/metadata";
+import { constructMetadata, SITE_URL } from "@/lib/metadata";
 import { PageHeader } from "@/components/ui";
 import { TransfersHubClient } from "@/components/transfers/TransfersHubClient";
 import { ShieldCheck, Info } from "lucide-react";
@@ -19,8 +19,21 @@ export default async function TransfersPage() {
   const { allTimeRecords, recentCommercial, contractEndsAndRetirements, leagues } =
     await getTransfersHubData();
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Transfers", item: `${SITE_URL}/transfers` },
+    ],
+  };
+
   return (
     <div className="space-y-6 max-w-[720px] mx-auto">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <PageHeader
         variant="directory"
         title="Transfer Centre"
@@ -34,7 +47,7 @@ export default async function TransfersPage() {
         leagues={leagues}
       />
 
-      {/* Verification & Data Methodology Footnote */}
+      {/* Verification Footnote */}
       <div className="pt-3 border-t border-[var(--divider)] space-y-1.5 text-[11px] text-[var(--text-muted)] leading-relaxed">
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-1.5">
