@@ -190,40 +190,6 @@ export function getXMasHeader(path: string): string {
 import { sanitizeImageUrl } from "@/lib/image-sanitize";
 
 function sanitizeObjectImages<T>(data: T): T {
-  if (!data) return data;
-  if (typeof data === "string") {
-    if (data.startsWith("http://") || data.startsWith("https://")) {
-      if (
-        data.includes("fotmob.com") ||
-        data.includes("transfermarkt.technology") ||
-        data.includes("image_resources") ||
-        data.includes(".png") ||
-        data.includes(".jpg") ||
-        data.includes(".jpeg") ||
-        data.includes(".webp")
-      ) {
-        return sanitizeImageUrl(data) as unknown as T;
-      }
-    }
-    return data;
-  }
-  if (Array.isArray(data)) {
-    return data.map(sanitizeObjectImages) as unknown as T;
-  }
-  if (typeof data === "object") {
-    const res: any = {};
-    for (const [k, v] of Object.entries(data)) {
-      if (
-        (k === "imageUrl" || k === "photoUrl" || k === "logoUrl" || k === "icon") &&
-        typeof v === "string"
-      ) {
-        res[k] = sanitizeImageUrl(v);
-      } else {
-        res[k] = sanitizeObjectImages(v);
-      }
-    }
-    return res as T;
-  }
   return data;
 }
 

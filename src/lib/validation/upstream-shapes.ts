@@ -31,13 +31,7 @@ export const FotmobMatchItemSchema = z.object({
 }).passthrough();
 
 export const FotmobMatchesResponseSchema = z.object({
-  leagues: z.array(
-    z.object({
-      id: z.union([z.string(), z.number()]),
-      name: z.string().optional(),
-      matches: z.array(FotmobMatchItemSchema).optional(),
-    }).passthrough()
-  ).optional(),
+  leagues: z.array(z.record(z.any())).optional(),
 }).passthrough();
 
 export const FotmobMatchDetailsSchema = z.object({
