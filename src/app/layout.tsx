@@ -124,6 +124,8 @@ import { AppShell } from "@/components/AppShell";
 import { AccountSync } from "@/components/auth/AccountSync";
 import { CapacitorBridge } from "@/components/mobile/CapacitorBridge";
 
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || "G-6LF5P2G6VY";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -132,6 +134,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${archivo.variable} dark`} data-theme="dark" suppressHydrationWarning>
       <head>
+        {/* Google tag (gtag.js) */}
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} />
+        <script
+          id="google-tag-gtag"
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', '${GA_MEASUREMENT_ID}');`,
+          }}
+        />
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
         <link rel="alternate" type="application/rss+xml" title="a1score RSS Feed" href={`${SITE_URL}/feed.xml`} />
       </head>

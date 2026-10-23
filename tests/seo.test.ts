@@ -259,3 +259,9 @@ test("SEO JSON-LD - Schema.org WebSite with SearchAction and Organization struct
   assert.equal(orgSchema.logo, "https://a1score.app/icon-512.png");
 });
 
+test("SEO & Analytics - Google Tag gtag.js format and ID validation", () => {
+  const gaId = process.env.NEXT_PUBLIC_GA_ID || "G-6LF5P2G6VY";
+  assert.match(gaId, /^G-[A-Z0-9]+$/, "Google Analytics ID must match G-[A-Z0-9]+ format");
+  assert.equal(gaId, "G-6LF5P2G6VY");
+});
+
