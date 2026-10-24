@@ -94,6 +94,14 @@ class ApiClient {
     return [for (final l in (j['data'] as List? ?? const [])) LeagueRef.fromJson(l as Json)];
   }
 
+  Future<LeagueCatalog> leagueCatalog() async {
+    final j = await _get('/leagues', {'scope': 'all'}) as Json;
+    return LeagueCatalog(
+      valued: [for (final l in (j['data'] as List? ?? const [])) LeagueRef.fromJson(l as Json)],
+      competitions: [for (final l in (j['competitions'] as List? ?? const [])) LeagueRef.fromJson(l as Json)],
+    );
+  }
+
   /// League page data (standings with squad values, clubs). Null on 404, i.e. before
   /// /api/leagues/[id] is deployed or for a league the site doesn't know.
   Future<LeagueDetail?> league(String id) async {

@@ -50,18 +50,31 @@ class TeamRef {
 }
 
 class LeagueRef {
-  const LeagueRef({required this.id, required this.name, this.country = '', this.logoUrl});
+  const LeagueRef({required this.id, required this.name, this.country = '', this.logoUrl, this.valueEur, this.clubCount});
   final String id;
   final String name;
   final String country;
   final String? logoUrl;
+
+  /// Total squad value, for leagues the site values.
+  final int? valueEur;
+  final int? clubCount;
 
   factory LeagueRef.fromJson(Json? j) => LeagueRef(
         id: _str(j, ['id', 'primaryId']),
         name: _str(j, ['name', 'leagueName'], '—'),
         country: _str(j, ['country', 'ccode', 'countryCode']),
         logoUrl: _pick<String>(j, ['logoUrl', 'imageUrl']),
+        valueEur: _int(j?['totalMarketValue']),
+        clubCount: _int(j?['clubCount']),
       );
+}
+
+/// /api/leagues?scope=all: valued leagues plus every competition with fixtures this fortnight.
+class LeagueCatalog {
+  const LeagueCatalog({required this.valued, required this.competitions});
+  final List<LeagueRef> valued;
+  final List<LeagueRef> competitions;
 }
 
 class OddsValue {
@@ -204,6 +217,12 @@ class StandingRow {
     required this.points,
     this.zoneColor,
     this.squadValueEur,
+    this.wins,
+    this.draws,
+    this.losses,
+    this.goalDiff,
+    this.form = const [],
+    this.clubId,
   });
   final int pos;
   final TeamRef team;
@@ -212,6 +231,16 @@ class StandingRow {
   final int points;
   final String? zoneColor;
   final int? squadValueEur;
+  final int? wins;
+  final int? draws;
+  final int? losses;
+  final int? goalDiff;
+
+  /// Last five results, oldest first: 'W', 'D' or 'L'.
+  final List<String> form;
+
+  /// a1score club id when the site matched this team to a club it values.
+  final String? clubId;
 
   factory StandingRow.fromJson(Json j) => StandingRow(
         pos: _int(j['idx'] ?? j['pos']) ?? 0,
@@ -225,6 +254,15 @@ class StandingRow {
         points: _int(j['pts'] ?? j['points']) ?? 0,
         zoneColor: _pick<String>(j, ['qualColor']),
         squadValueEur: _int(j['totalSquadValue']),
+        wins: _int(j['wins']),
+        draws: _int(j['draws']),
+        losses: _int(j['losses']),
+        goalDiff: _int(j['goalConDiff']),
+        form: [
+          for (final f in (j['form'] as List? ?? const []))
+            if (f is Json && f['result'] is String) (f['result'] as String).toUpperCase(),
+        ],
+        clubId: _pick<String>(j, ['clubId']),
       );
 }
 
@@ -243,6 +281,8 @@ class MatchDetail {
     this.homeBench = const [],
     this.awayBench = const [],
     this.info = const {},
+    this.shots = const [],
+    this.goals = const [],
   });
 
   final MatchSummary summary;
@@ -260,6 +300,12 @@ class MatchDetail {
   final List<PlayerValueRow> homeBench;
   final List<PlayerValueRow> awayBench;
   final Map<String, String> info;
+
+  /// Shot map, for the momentum chart.
+  final List<MatchShot> shots;
+
+  /// Goals from the match events, for the momentum chart's markers.
+  final List<MatchGoal> goals;
 
   factory MatchDetail.fromJson(Json d) {
     final general = d['general'] as Json? ?? {};
@@ -343,6 +389,28 @@ class MatchDetail {
     final homeXi = players('homeTeam', 'starters');
     final awayXi = players('awayTeam', 'starters');
 
+    final homeId = _str(home, ['id']);
+    final shots = <MatchShot>[];
+    for (final sh in ((d['shotmap'] as Json?)?['shots'] as List? ?? const [])) {
+      if (sh is! Json) continue;
+      final min = _int(sh['min']);
+      if (min == null) continue;
+      shots.add(MatchShot(
+        minute: min + (_int(sh['minAdded']) ?? 0),
+        isHome: _str(sh, ['teamId']) == homeId,
+        xg: _double(sh['expectedGoals']),
+        onTarget: sh['isOnTarget'] == true,
+        isGoal: sh['eventType'] == 'Goal',
+      ));
+    }
+    final goals = <MatchGoal>[];
+    for (final e in (d['events'] as List? ?? const [])) {
+      if (e is! Json || e['type'] != 'Goal') continue;
+      final min = _int(e['time']);
+      if (min == null) continue;
+      goals.add(MatchGoal(minute: min + (_int(e['overloadTime']) ?? 0), isHome: e['isHome'] == true));
+    }
+
     return MatchDetail(
       summary: summary,
       leagueName: _str(general, ['leagueName']),
@@ -357,8 +425,25 @@ class MatchDetail {
       homeBench: players('homeTeam', 'subs'),
       awayBench: players('awayTeam', 'subs'),
       info: info,
+      shots: shots,
+      goals: goals,
     );
   }
+}
+
+class MatchShot {
+  const MatchShot({required this.minute, required this.isHome, this.xg, this.onTarget = false, this.isGoal = false});
+  final int minute;
+  final bool isHome;
+  final double? xg;
+  final bool onTarget;
+  final bool isGoal;
+}
+
+class MatchGoal {
+  const MatchGoal({required this.minute, required this.isHome});
+  final int minute;
+  final bool isHome;
 }
 
 class ValueTrend {
@@ -570,13 +655,48 @@ class ClubValueRow {
 }
 
 /// /api/leagues/:id — the same payload the website's league page renders.
+/// Zone key under a league table, e.g. Champions League, Relegation.
+class LegendItem {
+  const LegendItem(this.title, this.color);
+  final String title;
+  final String color;
+}
+
+/// Top scorer / assist leader.
+class LeaderRow {
+  const LeaderRow({required this.name, required this.value, this.teamName, this.imageUrl});
+  final String name;
+  final num value;
+  final String? teamName;
+  final String? imageUrl;
+
+  factory LeaderRow.fromJson(Json j) => LeaderRow(
+        name: _str(j, ['name'], '—'),
+        value: (j['value'] as num?) ?? 0,
+        teamName: _pick<String>(j, ['teamName']),
+        imageUrl: _pick<String>(j, ['imageUrl']),
+      );
+}
+
 class LeagueDetail {
-  const LeagueDetail({required this.standings, required this.clubs, this.name, this.season, this.totalValueEur});
+  const LeagueDetail({
+    required this.standings,
+    required this.clubs,
+    this.name,
+    this.season,
+    this.totalValueEur,
+    this.legend = const [],
+    this.topScorers = const [],
+    this.topAssists = const [],
+  });
   final String? name;
   final String? season;
   final int? totalValueEur;
   final List<StandingRow> standings;
   final List<ClubValueRow> clubs;
+  final List<LegendItem> legend;
+  final List<LeaderRow> topScorers;
+  final List<LeaderRow> topAssists;
 
   factory LeagueDetail.fromJson(Json j) {
     final clubs = [for (final c in (j['clubs'] as List? ?? const [])) ClubValueRow.fromJson(c as Json)]
@@ -587,6 +707,12 @@ class LeagueDetail {
       totalValueEur: _int(j['totalMarketValue']),
       standings: [for (final r in (j['standings'] as List? ?? const [])) StandingRow.fromJson(r as Json)],
       clubs: clubs,
+      legend: [
+        for (final l in (j['legend'] as List? ?? const []))
+          if (l is Json) LegendItem(_str(l, ['title', 'name']), _str(l, ['color'])),
+      ],
+      topScorers: [for (final p in (j['topScorers'] as List? ?? const [])) LeaderRow.fromJson(p as Json)],
+      topAssists: [for (final p in (j['topAssists'] as List? ?? const [])) LeaderRow.fromJson(p as Json)],
     );
   }
 }

@@ -116,9 +116,12 @@ class _DayDropdownState extends State<_DayDropdown> {
               return InkWell(
                 onTap: () => Navigator.pop(context, d),
                 child: Container(
-                  color: on ? c.bgHighlight : null,
+                  decoration: BoxDecoration(
+                    color: on ? c.bgHighlight : null,
+                    border: Border(bottom: BorderSide(color: c.border)),
+                  ),
                   padding: const EdgeInsets.symmetric(horizontal: Space.xl),
-                  alignment: Alignment.centerLeft,
+                  alignment: Alignment.center,
                   child: Text(
                     dayLabel(d),
                     style: A1Text.settingsLabel.copyWith(

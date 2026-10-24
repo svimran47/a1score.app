@@ -21,8 +21,11 @@ class Crest extends StatelessWidget {
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(color: c.bgSecondary, borderRadius: r),
-      child: Text(initials(label),
-          style: A1Text.badge.copyWith(fontSize: size * 0.4, color: c.contentSecondary, letterSpacing: 0)),
+      padding: EdgeInsets.all(size * 0.15),
+      child: FittedBox(
+        child: Text(initials(label),
+            maxLines: 1, style: A1Text.badge.copyWith(fontSize: size * 0.4, color: c.contentSecondary, letterSpacing: 0)),
+      ),
     );
     if (url == null || url!.isEmpty) return fallback;
     return ClipRRect(

@@ -1,10 +1,13 @@
 import 'dart:convert';
 
 import 'package:a1score/api/api_client.dart';
+import 'package:a1score/api/models.dart';
+import 'package:a1score/widgets/momentum.dart';
 import 'package:a1score/screens/all_games_screen.dart';
 import 'package:a1score/screens/home_screen.dart';
 import 'package:a1score/screens/league_screen.dart';
 import 'package:a1score/screens/leagues_screen.dart';
+import 'package:a1score/screens/market_screen.dart';
 import 'package:a1score/screens/match_screen.dart';
 import 'package:a1score/screens/news_screen.dart';
 import 'package:a1score/screens/player_screen.dart';
@@ -39,6 +42,11 @@ Object? _body(Uri u) {
         'general': {'matchId': 1, 'leagueName': 'Premier League'},
         'status': _finished,
         'teams': {'home': _team, 'away': _team2},
+        'shotmap': {'shots': [
+          {'teamId': 8, 'min': 12, 'expectedGoals': 0.4, 'eventType': 'Goal', 'isOnTarget': true},
+          {'teamId': 9, 'min': 30, 'expectedGoals': 0.1, 'eventType': 'Miss'},
+        ]},
+        'events': [{'type': 'Goal', 'time': 12, 'isHome': true}],
         'lineup': {
           'homeTeam': {'starters': [{'name': 'Bukayo Saka', 'marketValue': 150000000}]},
           'awayTeam': {'starters': [{'name': 'Cole Palmer', 'marketValue': 130000000}]},
@@ -73,9 +81,21 @@ Object? _body(Uri u) {
       },
     };
   }
-  if (p.endsWith('/leagues')) return {'data': [{'id': 'pl', 'name': 'Premier League', 'country': 'England'}]};
+  if (p.endsWith('/leagues')) {
+    return {
+      'data': [{'id': 'pl', 'name': 'Premier League', 'country': 'England', 'totalMarketValue': 5100000000, 'clubCount': 20}],
+      'competitions': [{'id': '48', 'name': 'Championship', 'ccode': 'ENG'}, {'id': '42', 'name': 'Champions League', 'ccode': 'INT'}],
+    };
+  }
   if (p.contains('/leagues/')) {
-    return {'data': {'name': 'Premier League', 'standings': [{'idx': 1, 'id': 8, 'shortName': 'Arsenal', 'played': 9, 'pts': 23}], 'clubs': []}};
+    return {'data': {
+      'name': 'Premier League',
+      'standings': [{'idx': 1, 'id': 8, 'shortName': 'Arsenal', 'played': 9, 'pts': 23, 'wins': 7, 'draws': 2, 'losses': 0, 'goalConDiff': 15,
+        'form': [{'result': 'W'}, {'result': 'D'}, {'result': 'W'}]}],
+      'legend': [{'title': 'Champions League', 'color': '#2AD572'}],
+      'topScorers': [{'name': 'Erling Haaland', 'teamName': 'Man City', 'value': 11}],
+      'clubs': [],
+    }};
   }
   if (p.endsWith('/news')) return {'items': [{'title': 'Headline', 'url': 'https://a1score.app'}]};
   return null;
@@ -101,6 +121,11 @@ void main() {
     'player': const PlayerScreen(id: 'erling-haaland'),
     'leagues': const LeaguesScreen(),
     'league': const LeagueScreen(id: 'pl'),
+    'market': const MarketScreen(),
+    'market clubs': const MarketScreen(initialTab: 1),
+    'market movers': const MarketScreen(initialTab: 2),
+    'market transfers': const MarketScreen(initialTab: 3),
+    'market leagues': const MarketScreen(initialTab: 4),
     'news': const NewsScreen(),
   };
 
@@ -132,5 +157,40 @@ void main() {
     expect(find.textContaining('Yesterday '), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('league table switches between short, full and form', (tester) async {
+    await tester.pumpWidget(MaterialApp(theme: buildTheme(Brightness.light), home: const LeagueScreen(id: 'pl')));
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.text('VALUE'), findsNothing);
+    await tester.tap(find.text('FULL'));
+    await tester.pump();
+    expect(find.text('GD'), findsOneWidget);
+    expect(find.text('+15'), findsOneWidget);
+    await tester.tap(find.text('FORM'));
+    await tester.pump();
+    expect(find.text('W'), findsNWidgets(2));
+    expect(find.text('Champions League'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('leagues tab lists competitions by country', (tester) async {
+    await tester.pumpWidget(MaterialApp(theme: buildTheme(Brightness.light), home: const LeaguesScreen()));
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.text('Championship'), findsOneWidget);
+    expect(find.text('INTERNATIONAL'), findsOneWidget);
+    expect(find.text('ENGLAND'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  test('momentum favours the side creating chances', () {
+    final v = computeMomentum([
+      const MatchShot(minute: 10, isHome: true, xg: 0.5, onTarget: true),
+      const MatchShot(minute: 60, isHome: false, xg: 0.3),
+    ], 90);
+    expect(v.length, 90);
+    expect(v[9], greaterThan(0));
+    expect(v[59], lessThan(0));
+    expect(v.every((x) => x >= -1 && x <= 1), isTrue);
   });
 }

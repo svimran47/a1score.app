@@ -11,6 +11,7 @@ import '../theme/tokens.dart';
 import '../util/format.dart';
 import '../widgets/common.dart';
 import '../widgets/match_widgets.dart';
+import '../widgets/momentum.dart';
 import 'standings_table.dart';
 
 const _tabs = ['Summary', 'Stats', 'Market value', 'H2H', 'Standings'];
@@ -215,6 +216,10 @@ class _SummaryTab extends StatelessWidget {
     final c = context.c;
     final top = d.stats.isNotEmpty ? d.stats.first.lines.take(4).toList() : <StatLine>[];
     return ListView(padding: EdgeInsets.zero, children: [
+      if (d.summary.hasStarted && d.shots.isNotEmpty) ...[
+        const SectionTitle('Match momentum'),
+        MomentumChart(detail: d),
+      ],
       if (d.homeXiValueEur != null && d.awayXiValueEur != null) ...[
         const SectionTitle('Squad value'),
         StatCallout(

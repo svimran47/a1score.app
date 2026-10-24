@@ -7,6 +7,7 @@ import 'screens/favourites_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/league_screen.dart';
 import 'screens/leagues_screen.dart';
+import 'screens/market_screen.dart';
 import 'screens/match_screen.dart';
 import 'screens/news_screen.dart';
 import 'screens/player_screen.dart';
@@ -26,9 +27,9 @@ final router = GoRouter(
       branches: [
         StatefulShellBranch(routes: [GoRoute(path: '/', builder: (_, _) => const HomeScreen())]),
         StatefulShellBranch(routes: [GoRoute(path: '/live', builder: (_, _) => const AllGamesScreen(liveOnly: true))]),
-        StatefulShellBranch(routes: [GoRoute(path: '/favourites', builder: (_, _) => const FavouritesScreen())]),
-        StatefulShellBranch(routes: [GoRoute(path: '/news', builder: (_, _) => const NewsScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/market', builder: (_, _) => const MarketScreen())]),
         StatefulShellBranch(routes: [GoRoute(path: '/leagues', builder: (_, _) => const LeaguesScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/news', builder: (_, _) => const NewsScreen())]),
       ],
     ),
     // Detail pages cover the bottom bar, like the reference app.
@@ -40,6 +41,7 @@ final router = GoRouter(
     ),
     GoRoute(parentNavigatorKey: _rootKey, path: '/values', builder: (_, _) => const ValuesScreen()),
     GoRoute(parentNavigatorKey: _rootKey, path: '/player/:id', builder: (_, s) => PlayerScreen(id: s.pathParameters['id']!)),
+    GoRoute(parentNavigatorKey: _rootKey, path: '/favourites', builder: (_, _) => const FavouritesScreen()),
     GoRoute(parentNavigatorKey: _rootKey, path: '/settings', builder: (_, _) => const SettingsScreen()),
   ],
 );
@@ -51,9 +53,9 @@ class _Shell extends StatelessWidget {
   static const _items = [
     (Icons.sports_soccer_outlined, Icons.sports_soccer, 'All games'),
     (Icons.play_circle_outline, Icons.play_circle, 'Live'),
-    (Icons.star_outline_rounded, Icons.star_rounded, 'Favourites'),
-    (Icons.article_outlined, Icons.article, 'News'),
+    (Icons.euro_rounded, Icons.euro_rounded, 'Market'),
     (Icons.emoji_events_outlined, Icons.emoji_events, 'Leagues'),
+    (Icons.article_outlined, Icons.article, 'News'),
   ];
 
   @override
