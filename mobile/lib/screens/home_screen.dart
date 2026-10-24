@@ -66,6 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () => context.push('/favourites'),
             icon: const Icon(Icons.star_rounded),
           ),
+          IconButton(tooltip: 'Profile', onPressed: () => context.push('/profile'), icon: const Icon(Icons.person_outline)),
           const SizedBox(width: Space.s),
         ],
       ),

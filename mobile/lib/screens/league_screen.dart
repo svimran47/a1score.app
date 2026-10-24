@@ -49,7 +49,7 @@ class _LeagueScreenState extends State<LeagueScreen> with SingleTickerProviderSt
             valueListenable: favs.leagues,
             builder: (_, set, _) => IconButton(
               tooltip: 'Follow league',
-              onPressed: () => favs.toggle(favs.leagues, widget.id),
+              onPressed: () => favs.toggle(favs.leagues, widget.id, label: l?.name),
               icon: Icon(set.contains(widget.id) ? Icons.star_rounded : Icons.star_outline_rounded),
             ),
           ),

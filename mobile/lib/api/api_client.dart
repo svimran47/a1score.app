@@ -89,6 +89,14 @@ class ApiClient {
     return ClubDetail.fromJson((j['data'] ?? j) as Json);
   }
 
+  /// EUR → [code] reference rate from /api/fx (ECB).
+  Future<double> fxRate(String code) async {
+    final j = await _get('/fx') as Json;
+    final r = (j['rates'] as Json?)?[code];
+    if (r is! num) throw ApiException(503, 'No $code rate');
+    return r.toDouble();
+  }
+
   Future<PlayerProfile> player(String idOrSlug) async {
     final j = await _get('/players/$idOrSlug') as Json;
     return PlayerProfile.fromJson((j['data'] ?? j) as Json);

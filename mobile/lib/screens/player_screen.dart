@@ -21,6 +21,7 @@ class PlayerScreen extends StatefulWidget {
 
 class _PlayerScreenState extends State<PlayerScreen> {
   late Future<PlayerProfile> _future = ApiClient.instance.player(widget.id);
+  String? _name;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +30,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
       valueListenable: favs.players,
       builder: (_, set, _) => IconButton(
         tooltip: 'Follow player',
-        onPressed: () => favs.toggle(favs.players, widget.id),
+        onPressed: () => favs.toggle(favs.players, widget.id, label: _name),
         icon: Icon(set.contains(widget.id) ? Icons.star_rounded : Icons.star_outline_rounded),
       ),
     );
@@ -49,6 +50,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
           );
         }
         final p = snap.data!;
+        _name = p.name;
         final tabs = ['Profile', 'Stats', 'Transfers', if (p.injuries.isNotEmpty) 'Injuries'];
         return DefaultTabController(
           length: tabs.length,

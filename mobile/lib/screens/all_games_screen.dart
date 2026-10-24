@@ -80,7 +80,7 @@ class _AllGamesScreenState extends State<AllGamesScreen> with SingleTickerProvid
         ]),
         actions: [
           IconButton(tooltip: 'Search', onPressed: () => context.push('/values'), icon: const Icon(Icons.search)),
-          IconButton(tooltip: 'Settings', onPressed: () => context.push('/settings'), icon: const Icon(Icons.person_outline)),
+          IconButton(tooltip: 'Profile', onPressed: () => context.push('/profile'), icon: const Icon(Icons.person_outline)),
           const SizedBox(width: Space.s),
         ],
         bottom: PrimaryTabBar(controller: _tabs, labels: _filterLabels),

@@ -37,7 +37,7 @@ class _MarketScreenState extends State<MarketScreen> with SingleTickerProviderSt
       appBar: AppBar(
         title: const Text('Market values'),
         actions: [
-          IconButton(tooltip: 'Settings', onPressed: () => context.push('/settings'), icon: const Icon(Icons.person_outline)),
+          IconButton(tooltip: 'Profile', onPressed: () => context.push('/profile'), icon: const Icon(Icons.person_outline)),
           const SizedBox(width: Space.s),
         ],
         bottom: PrimaryTabBar(controller: _tabController, labels: _tabs),

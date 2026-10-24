@@ -12,7 +12,7 @@ import 'screens/market_screen.dart';
 import 'screens/match_screen.dart';
 import 'screens/news_screen.dart';
 import 'screens/player_screen.dart';
-import 'screens/settings_screen.dart';
+import 'screens/profile_screen.dart';
 import 'screens/values_screen.dart';
 import 'theme/app_theme.dart';
 import 'theme/tokens.dart';
@@ -44,7 +44,8 @@ final router = GoRouter(
     GoRoute(parentNavigatorKey: _rootKey, path: '/club/:id', builder: (_, s) => ClubScreen(id: s.pathParameters['id']!)),
     GoRoute(parentNavigatorKey: _rootKey, path: '/player/:id', builder: (_, s) => PlayerScreen(id: s.pathParameters['id']!)),
     GoRoute(parentNavigatorKey: _rootKey, path: '/favourites', builder: (_, _) => const FavouritesScreen()),
-    GoRoute(parentNavigatorKey: _rootKey, path: '/settings', builder: (_, _) => const SettingsScreen()),
+    GoRoute(parentNavigatorKey: _rootKey, path: '/profile', builder: (_, _) => const ProfileScreen()),
+    GoRoute(path: '/settings', redirect: (_, _) => '/profile'),
   ],
 );
 

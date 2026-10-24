@@ -75,7 +75,8 @@ class _MatchScreenState extends State<MatchScreen> {
                         final on = favs.contains(widget.id);
                         return IconButton(
                           tooltip: on ? 'Unfollow match' : 'Follow match',
-                          onPressed: () => Favourites.instance.toggle(Favourites.instance.matches, widget.id),
+                          onPressed: () => Favourites.instance.toggle(Favourites.instance.matches, widget.id,
+                              label: '${d.summary.home.name} – ${d.summary.away.name}'),
                           icon: Icon(on ? Icons.star_rounded : Icons.star_outline_rounded),
                         );
                       },
