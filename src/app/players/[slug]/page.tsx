@@ -32,6 +32,7 @@ export async function generateMetadata({ params }: PlayerPageProps): Promise<Met
       title: "Player Not Found | a1score",
       description: "The requested football player profile could not be located.",
       path: `/players/${params.slug}`,
+      noIndex: true,
     });
   }
 

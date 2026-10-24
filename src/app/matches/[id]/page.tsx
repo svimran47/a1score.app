@@ -20,6 +20,7 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
       title: "Match Not Found",
       description: "The requested football match could not be located.",
       path: `/matches/${params.id}`,
+      noIndex: true,
     });
   }
 
