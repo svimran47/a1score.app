@@ -19,9 +19,11 @@ class Prefs {
 
   Future<void> load() async {
     final p = _prefs = await SharedPreferences.getInstance();
-    themeMode.value = ThemeMode.values.byName(p.getString('theme') ?? 'system');
+    themeMode.value = ThemeMode.values.asNameMap()[p.getString('theme')] ?? ThemeMode.system;
     await Favourites.instance.load(p);
-    await setCurrency(p.getString('currency') ?? 'EUR', save: false);
+    // Not awaited: a saved non-euro currency needs /api/fx, and startup must not
+    // wait on the network. Values show in euros until the rate arrives.
+    setCurrency(p.getString('currency') ?? 'EUR', save: false);
   }
 
   void setTheme(ThemeMode m) {
