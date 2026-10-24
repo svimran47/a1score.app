@@ -43,7 +43,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
         future: _future,
         builder: (context, snap) => AsyncBody<PlayerProfile>(
           snapshot: snap,
-          onRetry: () => setState(() => _future = ApiClient.instance.player(widget.id)),
+          onRetry: () => setState(() { _future = ApiClient.instance.player(widget.id); }),
           builder: (p) => ListView(children: [
             Container(
               color: c.bgPrimary,

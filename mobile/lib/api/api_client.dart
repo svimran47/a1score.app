@@ -11,7 +11,8 @@ class ApiClient {
       : _http = httpClient ?? http.Client(),
         baseUrl = baseUrl ?? const String.fromEnvironment('A1_API', defaultValue: 'https://a1score.app/api');
 
-  static final instance = ApiClient();
+  /// Replaceable so widget tests can inject a fake HTTP client.
+  static ApiClient instance = ApiClient();
 
   final http.Client _http;
   final String baseUrl;

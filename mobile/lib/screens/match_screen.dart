@@ -41,7 +41,7 @@ class _MatchScreenState extends State<MatchScreen> {
 
   void _load() {
     final f = ApiClient.instance.match(widget.id);
-    setState(() => _future = f);
+    setState(() { _future = f; });
     _poll?.cancel();
     f.then((d) {
       if (mounted && d.summary.isLive) _poll = Timer(const Duration(seconds: 10), _load);

@@ -29,7 +29,7 @@ class _LeaguesScreenState extends State<LeaguesScreen> {
         future: _future,
         builder: (context, snap) => AsyncBody<List<LeagueRef>>(
           snapshot: snap,
-          onRetry: () => setState(() => _future = ApiClient.instance.leagues()),
+          onRetry: () => setState(() { _future = ApiClient.instance.leagues(); }),
           builder: (all) {
             final q = _query.toLowerCase();
             final list = q.isEmpty
