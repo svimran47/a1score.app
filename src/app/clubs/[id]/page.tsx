@@ -49,6 +49,7 @@ export async function generateMetadata({ params }: ClubPageProps): Promise<Metad
       title: "Club Not Found | a1score",
       description: "The requested football club profile could not be located.",
       path: `/clubs/${params.id}`,
+      noIndex: true,
     });
   }
 

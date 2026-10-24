@@ -290,27 +290,8 @@ export async function getPlayerBySlugOrId(slugOrId: string, { withFotmob = true 
             .limit(1)
             .maybeSingle();
 
-          // 3. If still not found, try matching by the longest distinctive name part (e.g. surname 'mbappe' or 'haaland')
-          if (!accentMatch) {
-            const sortedParts = [...nameParts].sort((a, b) => b.length - a.length);
-            for (const part of sortedParts) {
-              if (part.length >= 4) {
-                const partPattern = part.replace(/[aeiouy]/gi, "_");
-                const { data: singleMatch } = await supabase
-                  .from("Player")
-                  .select(playerSelectFields)
-                  .ilike("fullName", `%${partPattern}%`)
-                  .order("latestMarketValue", { ascending: false })
-                  .limit(1)
-                  .maybeSingle();
-                if (singleMatch) {
-                  accentMatch = singleMatch;
-                  break;
-                }
-              }
-            }
-          }
-
+          // No single-surname fallback: matching one 4+ char token (e.g. "exist")
+          // returns an unrelated player for unknown slugs, so unmatched slugs stay null.
           if (accentMatch) {
             player = accentMatch;
           }

@@ -28,6 +28,7 @@ export async function generateMetadata({ params }: LeaguePageProps): Promise<Met
       title: "Competition Not Found | a1score",
       description: "The requested football competition could not be located.",
       path: `/leagues/${params.id}`,
+      noIndex: true,
     });
   }
 

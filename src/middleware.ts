@@ -27,6 +27,13 @@ export function middleware(request: NextRequest) {
     },
   } as any);
 
+  // next.config.mjs headers() is not applied on Cloudflare Pages dynamic responses,
+  // so the baseline security headers are set here instead.
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+
   // Prevent search engines from indexing any preview deployments
   if (host.includes("pages.dev")) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
