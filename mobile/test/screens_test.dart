@@ -49,8 +49,14 @@ Object? _body(Uri u) {
         ]},
         'events': [{'type': 'Goal', 'time': 12, 'isHome': true}],
         'lineup': {
-          'homeTeam': {'starters': [{'name': 'Bukayo Saka', 'marketValue': 150000000}]},
-          'awayTeam': {'starters': [{'name': 'Cole Palmer', 'marketValue': 130000000}]},
+          'homeTeam': {
+            'formation': '4-3-3',
+            'coach': {'name': 'Mikel Arteta'},
+            'starters': [{'id': 1, 'name': 'Bukayo Saka', 'shirtNumber': 7, 'marketValue': 150000000, 'verticalLayout': {'x': 0.8, 'y': 0.2}, 'performance': {'rating': 8.1}}],
+            'subs': [{'id': 3, 'name': 'Leandro Trossard', 'shirtNumber': 19}],
+            'unavailable': [{'name': 'Ben White', 'unavailability': {'type': 'injury'}}],
+          },
+          'awayTeam': {'formation': '4-2-3-1', 'starters': [{'id': 2, 'name': 'Cole Palmer', 'shirtNumber': 20, 'marketValue': 130000000}]},
         },
       },
     };
@@ -240,6 +246,22 @@ void main() {
     await tester.tap(find.text('INJURIES'));
     await tester.pumpAndSettle();
     expect(find.text('Ankle injury'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('lineups tab shows the pitch and switches badges', (tester) async {
+    tester.view.physicalSize = const Size(1080, 4000);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(MaterialApp(theme: buildTheme(Brightness.light), home: const MatchScreen(id: '1')));
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.tap(find.text('LINEUPS'));
+    await tester.pumpAndSettle();
+    expect(find.text('8.1'), findsOneWidget);
+    expect(find.text('Mikel Arteta'), findsOneWidget);
+    expect(find.text('Ben White'), findsOneWidget);
+    await tester.tap(find.text('MARKET VALUE').first);
+    await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
 }

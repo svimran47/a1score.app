@@ -283,6 +283,8 @@ class MatchDetail {
     this.info = const {},
     this.shots = const [],
     this.goals = const [],
+    this.homeLineup,
+    this.awayLineup,
   });
 
   final MatchSummary summary;
@@ -306,6 +308,10 @@ class MatchDetail {
 
   /// Goals from the match events, for the momentum chart's markers.
   final List<MatchGoal> goals;
+
+  /// Formation, XI with pitch positions, bench, coach and missing players.
+  final TeamLineup? homeLineup;
+  final TeamLineup? awayLineup;
 
   factory MatchDetail.fromJson(Json d) {
     final general = d['general'] as Json? ?? {};
@@ -427,6 +433,111 @@ class MatchDetail {
       info: info,
       shots: shots,
       goals: goals,
+      homeLineup: TeamLineup.tryParse(lineup?['homeTeam'] as Json?),
+      awayLineup: TeamLineup.tryParse(lineup?['awayTeam'] as Json?),
+    );
+  }
+}
+
+class TeamLineup {
+  const TeamLineup({
+    required this.starters,
+    this.subs = const [],
+    this.formation,
+    this.coach,
+    this.missing = const [],
+    this.averageAge,
+  });
+  final String? formation;
+  final String? coach;
+  final List<LineupPlayer> starters;
+  final List<LineupPlayer> subs;
+
+  /// (name, reason) for injured and suspended players.
+  final List<(String, String)> missing;
+  final double? averageAge;
+
+  static TeamLineup? tryParse(Json? j) {
+    final starters = [for (final p in (j?['starters'] as List? ?? const [])) if (p is Json) LineupPlayer.fromJson(p)];
+    if (starters.isEmpty) return null;
+    final coach = j!['coach'];
+    return TeamLineup(
+      formation: _pick<String>(j, ['formation']),
+      coach: coach is Json ? _pick<String>(coach, ['name']) : (coach is List && coach.isNotEmpty && coach.first is Json ? _pick<String>(coach.first as Json, ['name']) : null),
+      starters: starters,
+      subs: [for (final p in (j['subs'] as List? ?? const [])) if (p is Json) LineupPlayer.fromJson(p)],
+      missing: [
+        for (final p in (j['unavailable'] as List? ?? const []))
+          if (p is Json)
+            (
+              _str(p, ['name'], '—'),
+              [
+                _str(p['unavailability'] as Json?, ['type']),
+                _str(p['unavailability'] as Json?, ['expectedReturn']),
+              ].where((x) => x.isNotEmpty).join(' · '),
+            ),
+      ],
+      averageAge: _double(j['averageStarterAge']),
+    );
+  }
+}
+
+class LineupPlayer {
+  const LineupPlayer({
+    required this.id,
+    required this.name,
+    this.shirt,
+    this.x,
+    this.y,
+    this.rating,
+    this.valueEur,
+    this.age,
+    this.captain = false,
+    this.goals = 0,
+    this.yellow = false,
+    this.red = false,
+    this.subbedOut = false,
+  });
+  final String id;
+  final String name;
+  final String? shirt;
+
+  /// FotMob verticalLayout: x 0..1 across, y 0..1 from the opponent's goal (0) to own goal (1).
+  final double? x;
+  final double? y;
+  final double? rating;
+  final int? valueEur;
+  final int? age;
+  final bool captain;
+  final int goals;
+  final bool yellow;
+  final bool red;
+  final bool subbedOut;
+
+  String get shortName {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    return parts.length == 1 ? name : parts.last;
+  }
+
+  factory LineupPlayer.fromJson(Json j) {
+    final layout = j['verticalLayout'] as Json?;
+    final perf = j['performance'] as Json?;
+    final events = [for (final e in (perf?['events'] as List? ?? const [])) if (e is Json) _str(e, ['type']).toLowerCase()];
+    final subEvents = [for (final e in (perf?['substitutionEvents'] as List? ?? const [])) if (e is Json) _str(e, ['type']).toLowerCase()];
+    return LineupPlayer(
+      id: _str(j, ['id']),
+      name: _str(j, ['name'], '—'),
+      shirt: _pick<Object>(j, ['shirtNumber'])?.toString(),
+      x: _double(layout?['x']),
+      y: _double(layout?['y']),
+      rating: _double(perf?['rating'] ?? (j['rating'] is Json ? (j['rating'] as Json)['num'] : j['rating'])),
+      valueEur: _int(j['marketValue']),
+      age: _int(j['age']),
+      captain: j['isCaptain'] == true,
+      goals: events.where((e) => e == 'goal').length,
+      yellow: events.contains('yellowcard') || events.contains('yellow'),
+      red: events.contains('redcard') || events.contains('red'),
+      subbedOut: subEvents.contains('subout'),
     );
   }
 }
