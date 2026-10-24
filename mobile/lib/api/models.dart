@@ -281,6 +281,8 @@ class MatchDetail {
     this.homeBench = const [],
     this.awayBench = const [],
     this.info = const {},
+    this.shots = const [],
+    this.goals = const [],
   });
 
   final MatchSummary summary;
@@ -298,6 +300,12 @@ class MatchDetail {
   final List<PlayerValueRow> homeBench;
   final List<PlayerValueRow> awayBench;
   final Map<String, String> info;
+
+  /// Shot map, for the momentum chart.
+  final List<MatchShot> shots;
+
+  /// Goals from the match events, for the momentum chart's markers.
+  final List<MatchGoal> goals;
 
   factory MatchDetail.fromJson(Json d) {
     final general = d['general'] as Json? ?? {};
@@ -381,6 +389,28 @@ class MatchDetail {
     final homeXi = players('homeTeam', 'starters');
     final awayXi = players('awayTeam', 'starters');
 
+    final homeId = _str(home, ['id']);
+    final shots = <MatchShot>[];
+    for (final sh in ((d['shotmap'] as Json?)?['shots'] as List? ?? const [])) {
+      if (sh is! Json) continue;
+      final min = _int(sh['min']);
+      if (min == null) continue;
+      shots.add(MatchShot(
+        minute: min + (_int(sh['minAdded']) ?? 0),
+        isHome: _str(sh, ['teamId']) == homeId,
+        xg: _double(sh['expectedGoals']),
+        onTarget: sh['isOnTarget'] == true,
+        isGoal: sh['eventType'] == 'Goal',
+      ));
+    }
+    final goals = <MatchGoal>[];
+    for (final e in (d['events'] as List? ?? const [])) {
+      if (e is! Json || e['type'] != 'Goal') continue;
+      final min = _int(e['time']);
+      if (min == null) continue;
+      goals.add(MatchGoal(minute: min + (_int(e['overloadTime']) ?? 0), isHome: e['isHome'] == true));
+    }
+
     return MatchDetail(
       summary: summary,
       leagueName: _str(general, ['leagueName']),
@@ -395,8 +425,25 @@ class MatchDetail {
       homeBench: players('homeTeam', 'subs'),
       awayBench: players('awayTeam', 'subs'),
       info: info,
+      shots: shots,
+      goals: goals,
     );
   }
+}
+
+class MatchShot {
+  const MatchShot({required this.minute, required this.isHome, this.xg, this.onTarget = false, this.isGoal = false});
+  final int minute;
+  final bool isHome;
+  final double? xg;
+  final bool onTarget;
+  final bool isGoal;
+}
+
+class MatchGoal {
+  const MatchGoal({required this.minute, required this.isHome});
+  final int minute;
+  final bool isHome;
 }
 
 class ValueTrend {

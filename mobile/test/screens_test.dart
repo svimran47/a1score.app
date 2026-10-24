@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:a1score/api/api_client.dart';
+import 'package:a1score/api/models.dart';
+import 'package:a1score/widgets/momentum.dart';
 import 'package:a1score/screens/all_games_screen.dart';
 import 'package:a1score/screens/home_screen.dart';
 import 'package:a1score/screens/league_screen.dart';
@@ -40,6 +42,11 @@ Object? _body(Uri u) {
         'general': {'matchId': 1, 'leagueName': 'Premier League'},
         'status': _finished,
         'teams': {'home': _team, 'away': _team2},
+        'shotmap': {'shots': [
+          {'teamId': 8, 'min': 12, 'expectedGoals': 0.4, 'eventType': 'Goal', 'isOnTarget': true},
+          {'teamId': 9, 'min': 30, 'expectedGoals': 0.1, 'eventType': 'Miss'},
+        ]},
+        'events': [{'type': 'Goal', 'time': 12, 'isHome': true}],
         'lineup': {
           'homeTeam': {'starters': [{'name': 'Bukayo Saka', 'marketValue': 150000000}]},
           'awayTeam': {'starters': [{'name': 'Cole Palmer', 'marketValue': 130000000}]},
@@ -174,5 +181,16 @@ void main() {
     expect(find.text('INTERNATIONAL'), findsOneWidget);
     expect(find.text('ENGLAND'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  test('momentum favours the side creating chances', () {
+    final v = computeMomentum([
+      const MatchShot(minute: 10, isHome: true, xg: 0.5, onTarget: true),
+      const MatchShot(minute: 60, isHome: false, xg: 0.3),
+    ], 90);
+    expect(v.length, 90);
+    expect(v[9], greaterThan(0));
+    expect(v[59], lessThan(0));
+    expect(v.every((x) => x >= -1 && x <= 1), isTrue);
   });
 }
