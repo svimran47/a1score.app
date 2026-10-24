@@ -85,6 +85,11 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(tooltip: 'Search', onPressed: () => context.push('/values'), icon: const Icon(Icons.search)),
           IconButton(
+            tooltip: 'Favourites',
+            onPressed: () => context.push('/favourites'),
+            icon: const Icon(Icons.star_outline_rounded),
+          ),
+          IconButton(
             tooltip: 'Settings',
             onPressed: () => context.push('/settings'),
             icon: const Icon(Icons.person_outline),
