@@ -31,7 +31,10 @@ class _NewsScreenState extends State<NewsScreen> with SingleTickerProviderStateM
     _load();
   }
 
-  void _load() => _future = ApiClient.instance.news(category: _categories[_tabs.index]);
+  // Block body on purpose: setState(_load) must not hand back the Future.
+  void _load() {
+    _future = ApiClient.instance.news(category: _categories[_tabs.index]);
+  }
 
   @override
   void dispose() {

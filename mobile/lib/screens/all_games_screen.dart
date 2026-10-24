@@ -48,7 +48,7 @@ class _AllGamesScreenState extends State<AllGamesScreen> with SingleTickerProvid
 
   void _load() {
     final future = ApiClient.instance.matches(date: yyyymmdd(_day), filter: _filters[_tabs.index]);
-    setState(() => _future = future);
+    setState(() { _future = future; });
     _poll?.cancel();
     future.then((groups) {
       final anyLive = groups.any((g) => g.matches.any((m) => m.isLive));

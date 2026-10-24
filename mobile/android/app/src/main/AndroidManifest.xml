@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Release builds only get permissions declared here; debug/profile add INTERNET on their own. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="a1score"
         android:name="${applicationName}"

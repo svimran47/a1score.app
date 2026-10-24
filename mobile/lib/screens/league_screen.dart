@@ -62,7 +62,7 @@ class _LeagueScreenState extends State<LeagueScreen> with SingleTickerProviderSt
           }
           return AsyncBody<LeagueDetail?>(
             snapshot: snap,
-            onRetry: () => setState(() => _future = ApiClient.instance.league(widget.id)),
+            onRetry: () => setState(() { _future = ApiClient.instance.league(widget.id); }),
             builder: (detail) => TabBarView(
               controller: _tabs,
               children: [
