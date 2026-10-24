@@ -110,7 +110,8 @@ class _ClubsTab extends StatelessWidget {
           return ListView(children: [
             _TotalBanner(label: 'Top ${clubs.length} squads combined', valueEur: total),
             const SectionBar('Club', trailing: 'Squad value'),
-            for (var i = 0; i < clubs.length; i++) ClubRankTile(club: clubs[i], rank: i + 1),
+            for (var i = 0; i < clubs.length; i++)
+              ClubRankTile(club: clubs[i], rank: i + 1, onTap: () => context.push('/club/${clubs[i].id}')),
           ]);
         },
       );

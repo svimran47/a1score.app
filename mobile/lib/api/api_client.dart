@@ -84,6 +84,11 @@ class ApiClient {
     return [for (final c in (j['data'] as List? ?? const [])) ClubValueRow.fromJson(c as Json)];
   }
 
+  Future<ClubDetail> club(String id) async {
+    final j = await _get('/clubs/$id', {'include': 'details'}) as Json;
+    return ClubDetail.fromJson((j['data'] ?? j) as Json);
+  }
+
   Future<PlayerProfile> player(String idOrSlug) async {
     final j = await _get('/players/$idOrSlug') as Json;
     return PlayerProfile.fromJson((j['data'] ?? j) as Json);

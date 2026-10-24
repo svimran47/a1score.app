@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../api/api_client.dart';
 import '../api/models.dart';
@@ -132,6 +133,7 @@ class _ClubValues extends StatelessWidget {
         for (final (i, club) in clubs.indexed)
           ValueRow(
             rank: i + 1,
+            onTap: club.id.isEmpty ? null : () => context.push('/club/${club.id}'),
             player: PlayerValueRow(
               id: club.id,
               name: club.name,
