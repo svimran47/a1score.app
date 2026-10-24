@@ -51,7 +51,7 @@ class _Shell extends StatelessWidget {
   final StatefulNavigationShell shell;
 
   static const _items = [
-    (Icons.home_outlined, Icons.home_rounded, 'Home'),
+    (Icons.sports_soccer_outlined, Icons.sports_soccer, 'All games'),
     (Icons.play_circle_outline, Icons.play_circle, 'Live'),
     (Icons.euro_rounded, Icons.euro_rounded, 'Market'),
     (Icons.emoji_events_outlined, Icons.emoji_events, 'Leagues'),

@@ -133,25 +133,21 @@ void main() {
     });
   }
 
-  testWidgets('home swipes to the next day and opens the calendar', (tester) async {
-    // Tall enough that every home section is laid out.
-    tester.view.physicalSize = const Size(1080, 6000);
-    tester.view.devicePixelRatio = 2;
-    addTearDown(tester.view.reset);
+  testWidgets('all games swipes to the next day and picks a day from the dropdown', (tester) async {
     await tester.pumpWidget(MaterialApp(theme: buildTheme(Brightness.light), home: const HomeScreen()));
     await tester.pump(const Duration(milliseconds: 200));
-    expect(find.text('Florian Wirtz'), findsOneWidget);
-    expect(find.text('Real Madrid'), findsOneWidget);
+    expect(find.textContaining('Today '), findsOneWidget);
+    expect(find.text('Arsenal'), findsOneWidget);
 
     await tester.fling(find.byType(PageView), const Offset(-400, 0), 1500);
     await tester.pumpAndSettle();
-    expect(tester.takeException(), isNull);
+    expect(find.textContaining('Tomorrow '), findsOneWidget);
 
     await tester.tap(find.byTooltip('Calendar'));
     await tester.pumpAndSettle();
-    expect(find.text('TOMORROW'), findsOneWidget);
-    await tester.tap(find.text('TODAY').last);
+    await tester.tap(find.textContaining('Yesterday ').last);
     await tester.pumpAndSettle();
+    expect(find.textContaining('Yesterday '), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });

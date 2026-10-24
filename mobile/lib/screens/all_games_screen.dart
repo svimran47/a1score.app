@@ -86,15 +86,12 @@ class _AllGamesScreenState extends State<AllGamesScreen> with SingleTickerProvid
         bottom: PrimaryTabBar(controller: _tabs, labels: _filterLabels),
       ),
       body: Column(children: [
-        ColoredBox(
-          color: c.appBar,
-          child: DateStrip(
-            selected: _day,
-            onSelected: (d) {
-              _day = d;
-              _load();
-            },
-          ),
+        DateHeader(
+          selected: _day,
+          onSelected: (d) {
+            _day = d;
+            _load();
+          },
         ),
         Expanded(
           child: GestureDetector(
