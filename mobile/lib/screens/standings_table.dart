@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../api/models.dart';
 import '../theme/app_theme.dart';
@@ -51,6 +52,7 @@ class StandingsTable extends StatelessWidget {
         Material(
           color: highlightIds.contains(r.team.id) ? c.bgHighlight : c.bgPrimary,
           child: InkWell(
+            onTap: r.clubId == null ? null : () => context.push('/club/${r.clubId}'),
             child: Container(
               height: Sizes.standingsRow,
               padding: const EdgeInsets.symmetric(horizontal: Space.gutter),

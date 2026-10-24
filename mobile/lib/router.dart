@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'api/models.dart';
 import 'screens/all_games_screen.dart';
+import 'screens/club_screen.dart';
 import 'screens/favourites_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/league_screen.dart';
@@ -40,6 +41,7 @@ final router = GoRouter(
       builder: (_, s) => LeagueScreen(id: s.pathParameters['id']!, league: s.extra is LeagueRef ? s.extra as LeagueRef : null),
     ),
     GoRoute(parentNavigatorKey: _rootKey, path: '/values', builder: (_, _) => const ValuesScreen()),
+    GoRoute(parentNavigatorKey: _rootKey, path: '/club/:id', builder: (_, s) => ClubScreen(id: s.pathParameters['id']!)),
     GoRoute(parentNavigatorKey: _rootKey, path: '/player/:id', builder: (_, s) => PlayerScreen(id: s.pathParameters['id']!)),
     GoRoute(parentNavigatorKey: _rootKey, path: '/favourites', builder: (_, _) => const FavouritesScreen()),
     GoRoute(parentNavigatorKey: _rootKey, path: '/settings', builder: (_, _) => const SettingsScreen()),

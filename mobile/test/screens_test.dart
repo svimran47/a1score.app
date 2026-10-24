@@ -4,6 +4,7 @@ import 'package:a1score/api/api_client.dart';
 import 'package:a1score/api/models.dart';
 import 'package:a1score/widgets/momentum.dart';
 import 'package:a1score/screens/all_games_screen.dart';
+import 'package:a1score/screens/club_screen.dart';
 import 'package:a1score/screens/home_screen.dart';
 import 'package:a1score/screens/league_screen.dart';
 import 'package:a1score/screens/leagues_screen.dart';
@@ -64,6 +65,21 @@ Object? _body(Uri u) {
     return {'data': [{'id': 't1', 'fromClubName': 'Bayer 04 Leverkusen', 'toClubName': 'Liverpool FC', 'date': '2025-07-01', 'feeEur': 125000000,
       'player': {'commonName': 'Florian Wirtz', 'slug': 'florian-wirtz'}}]};
   }
+  if (p.contains('/clubs/')) {
+    return {'data': {
+      'id': 'c1', 'name': 'Real Madrid', 'country': 'Spain', 'league': {'id': 'es1', 'name': 'LaLiga'},
+      'totalSquadValue': 1340000000, 'squadSize': 24, 'averageAge': '26.1',
+      'firstTeamPlayers': [
+        {'slug': 'kylian-mbappe', 'fullName': 'Kylian Mbappé', 'latestMarketValue': 180000000, 'positionGroup': 'ATT', 'position': 'Centre-Forward', 'age': 27},
+        {'slug': 'thibaut-courtois', 'fullName': 'Thibaut Courtois', 'latestMarketValue': 20000000, 'positionGroup': 'GK', 'position': 'Goalkeeper', 'age': 34},
+      ],
+      'team': {'venue': {'name': 'Santiago Bernabéu', 'city': 'Madrid', 'capacity': 83186}, 'manager': {'name': 'Xabi Alonso'},
+        'recentForm': [{'result': 'W', 'score': '2-0', 'opponent': 'Sevilla'}], 'leagueTable': {'rank': 1, 'pts': 24, 'played': 9}},
+      'honours': [{'competitionName': 'Champions League', 'titleCount': 15, 'latestSeason': '2023/24'}],
+      'snapshots': [{'date': '2025-06-01', 'totalMarketValue': 1300000000}, {'date': '2026-06-01', 'totalMarketValue': 1340000000}],
+      'transfers': {'recordArrivals': [{'fromClubName': 'Liverpool FC', 'toClubName': 'Real Madrid', 'feeEur': 10000000, 'player': {'commonName': 'Trent Alexander-Arnold'}}], 'recordDepartures': []},
+    }};
+  }
   if (p.endsWith('/clubs')) {
     return {'data': [{'id': 'c1', 'name': 'Real Madrid', 'totalSquadValue': 1340000000, 'leagueName': 'LaLiga', 'playerCount': 24}]};
   }
@@ -74,6 +90,9 @@ Object? _body(Uri u) {
     return {
       'data': {
         'identity': {'displayName': 'Erling Haaland'},
+        'seasonStats': [{'season': '2025/2026', 'competition': 'Premier League', 'clubName': 'Man City', 'appearances': 31, 'goals': 27, 'assists': 5}],
+        'transfers': [{'date': '2022-07-01', 'fromClubName': 'Dortmund', 'toClubName': 'Man City', 'feeEur': 60000000}],
+        'injuries': [{'type': 'Ankle injury', 'startDate': '2025-03-01', 'endDate': '2025-04-01', 'status': 'recovered'}],
         'valuation': {'points': [
           {'date': '2024-06-01', 'valueEur': 170000000},
           {'date': '2025-06-01', 'valueEur': 180000000},
@@ -107,7 +126,7 @@ void main() {
       baseUrl: 'https://test/api',
       httpClient: MockClient((req) async {
         final b = _body(req.url);
-        return b == null ? http.Response('{"error":"not found"}', 404) : http.Response(jsonEncode(b), 200);
+        return b == null ? http.Response('{"error":"not found"}', 404) : http.Response.bytes(utf8.encode(jsonEncode(b)), 200);
       }),
     );
   });
@@ -122,6 +141,7 @@ void main() {
     'leagues': const LeaguesScreen(),
     'league': const LeagueScreen(id: 'pl'),
     'market': const MarketScreen(),
+    'club': const ClubScreen(id: 'c1'),
     'market clubs': const MarketScreen(initialTab: 1),
     'market movers': const MarketScreen(initialTab: 2),
     'market transfers': const MarketScreen(initialTab: 3),
@@ -192,5 +212,34 @@ void main() {
     expect(v[9], greaterThan(0));
     expect(v[59], lessThan(0));
     expect(v.every((x) => x >= -1 && x <= 1), isTrue);
+  });
+
+  testWidgets('club page shows squad by position and transfers', (tester) async {
+    tester.view.physicalSize = const Size(1080, 4000);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(MaterialApp(theme: buildTheme(Brightness.light), home: const ClubScreen(id: 'c1')));
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.text('Xabi Alonso'), findsOneWidget);
+    await tester.tap(find.text('SQUAD'));
+    await tester.pumpAndSettle();
+    expect(find.text('FORWARDS'), findsOneWidget);
+    expect(find.text('Kylian Mbappé'), findsOneWidget);
+    await tester.tap(find.text('TRANSFERS'));
+    await tester.pumpAndSettle();
+    expect(find.text('Trent Alexander-Arnold'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('player page has stats, transfers and injuries tabs', (tester) async {
+    await tester.pumpWidget(MaterialApp(theme: buildTheme(Brightness.light), home: const PlayerScreen(id: 'erling-haaland')));
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.tap(find.text('STATS'));
+    await tester.pumpAndSettle();
+    expect(find.text('27'), findsWidgets);
+    await tester.tap(find.text('INJURIES'));
+    await tester.pumpAndSettle();
+    expect(find.text('Ankle injury'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }
