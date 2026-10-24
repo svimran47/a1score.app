@@ -112,7 +112,7 @@ class _LeaguesScreenState extends State<LeaguesScreen> {
           ? '${_countries[l.country] ?? l.country} · ${formatEur(l.valueEur)}'
           : (_countries[l.country] ?? l.country),
       subtitleColor: value ? c.brand : null,
-      trailing: _FollowStar(id: l.id),
+      trailing: _FollowStar(id: l.id, label: l.name),
       onTap: () => context.push('/league/${l.id}', extra: l),
     );
   }
@@ -157,8 +157,9 @@ class _NavRow extends StatelessWidget {
 }
 
 class _FollowStar extends StatelessWidget {
-  const _FollowStar({required this.id});
+  const _FollowStar({required this.id, this.label});
   final String id;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +171,7 @@ class _FollowStar extends StatelessWidget {
         final on = set.contains(id);
         return IconButton(
           tooltip: on ? 'Unfollow league' : 'Follow league',
-          onPressed: () => favs.toggle(favs.leagues, id),
+          onPressed: () => favs.toggle(favs.leagues, id, label: label),
           icon: Icon(on ? Icons.star_rounded : Icons.star_outline_rounded, color: on ? c.favouriteStar : c.statMuted),
         );
       },

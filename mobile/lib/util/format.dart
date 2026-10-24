@@ -1,15 +1,30 @@
 import 'package:intl/intl.dart';
 
+/// Display currency for every value in the app (set from the Profile page).
+abstract final class Money {
+  static String code = 'EUR';
+  static double rate = 1;
+  static String get symbol => switch (code) { 'GBP' => '£', 'USD' => r'$', _ => '€' };
+
+  static void use(String newCode, double newRate) {
+    code = newCode;
+    rate = newRate;
+  }
+}
+
 /// €180m, €62.5m, €950k, €1.32bn — matches the web app's money format.
+/// Values arrive in euros and are shown in [Money.code].
 String formatEur(int? eur) {
   if (eur == null || eur <= 0) return '—';
-  if (eur >= 1000000000) return '€${(eur / 1e9).toStringAsFixed(2)}bn';
-  if (eur >= 1000000) {
-    final m = eur / 1e6;
-    return '€${m >= 100 || m == m.roundToDouble() ? m.toStringAsFixed(0) : m.toStringAsFixed(1)}m';
+  final v = eur * Money.rate;
+  final s = Money.symbol;
+  if (v >= 1000000000) return '$s${(v / 1e9).toStringAsFixed(2)}bn';
+  if (v >= 1000000) {
+    final m = v / 1e6;
+    return '$s${m >= 100 || (m - m.round()).abs() < 0.05 ? m.toStringAsFixed(0) : m.toStringAsFixed(1)}m';
   }
-  if (eur >= 1000) return '€${(eur / 1e3).toStringAsFixed(0)}k';
-  return '€$eur';
+  if (v >= 1000) return '$s${(v / 1e3).toStringAsFixed(0)}k';
+  return '$s${v.round()}';
 }
 
 String formatTrend(int diffEur) {

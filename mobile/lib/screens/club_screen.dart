@@ -25,6 +25,7 @@ class ClubScreen extends StatefulWidget {
 
 class _ClubScreenState extends State<ClubScreen> {
   late Future<ClubDetail> _future = ApiClient.instance.club(widget.id);
+  String? _name;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,7 @@ class _ClubScreenState extends State<ClubScreen> {
       valueListenable: favs.teams,
       builder: (_, set, _) => IconButton(
         tooltip: 'Follow club',
-        onPressed: () => favs.toggle(favs.teams, widget.id),
+        onPressed: () => favs.toggle(favs.teams, widget.id, label: _name),
         icon: Icon(set.contains(widget.id) ? Icons.star_rounded : Icons.star_outline_rounded),
       ),
     );
@@ -53,6 +54,7 @@ class _ClubScreenState extends State<ClubScreen> {
           );
         }
         final club = snap.data!;
+        _name = club.name;
         return DefaultTabController(
           length: 3,
           child: Scaffold(

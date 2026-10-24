@@ -86,7 +86,7 @@ class MatchRow extends StatelessWidget {
           height: Sizes.matchRow,
           decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.border))),
           child: Row(children: [
-            SizedBox(width: 39, child: _FavStar(id: m.id)),
+            SizedBox(width: 39, child: _FavStar(id: m.id, label: '${m.home.name} – ${m.away.name}')),
             Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               Crest(url: m.home.crestUrl, label: m.home.name),
               const SizedBox(height: 7),
@@ -131,8 +131,9 @@ class MatchRow extends StatelessWidget {
 }
 
 class _FavStar extends StatelessWidget {
-  const _FavStar({required this.id});
+  const _FavStar({required this.id, this.label});
   final String id;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +146,7 @@ class _FavStar extends StatelessWidget {
           tooltip: on ? 'Unfollow match' : 'Follow match',
           padding: EdgeInsets.zero,
           iconSize: 20,
-          onPressed: () => Favourites.instance.toggle(Favourites.instance.matches, id),
+          onPressed: () => Favourites.instance.toggle(Favourites.instance.matches, id, label: label),
           icon: Icon(on ? Icons.star_rounded : Icons.star_outline_rounded, color: on ? c.favouriteStar : c.statMuted),
         );
       },

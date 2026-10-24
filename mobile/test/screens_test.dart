@@ -5,6 +5,7 @@ import 'package:a1score/api/models.dart';
 import 'package:a1score/widgets/momentum.dart';
 import 'package:a1score/screens/all_games_screen.dart';
 import 'package:a1score/screens/club_screen.dart';
+import 'package:a1score/screens/favourites_screen.dart';
 import 'package:a1score/screens/home_screen.dart';
 import 'package:a1score/screens/league_screen.dart';
 import 'package:a1score/screens/leagues_screen.dart';
@@ -12,12 +13,17 @@ import 'package:a1score/screens/market_screen.dart';
 import 'package:a1score/screens/match_screen.dart';
 import 'package:a1score/screens/news_screen.dart';
 import 'package:a1score/screens/player_screen.dart';
+import 'package:a1score/screens/profile_screen.dart';
 import 'package:a1score/screens/values_screen.dart';
+import 'package:a1score/state/favourites.dart';
+import 'package:a1score/state/prefs.dart';
 import 'package:a1score/theme/app_theme.dart';
+import 'package:a1score/util/format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Debug-mode smoke tests: each screen loads data and renders without framework
 // assertions (e.g. setState callbacks returning a Future), which release
@@ -122,6 +128,7 @@ Object? _body(Uri u) {
       'clubs': [],
     }};
   }
+  if (p.endsWith('/fx')) return {'date': '2026-10-24', 'rates': {'EUR': 1, 'GBP': 0.5, 'USD': 1.1}};
   if (p.endsWith('/news')) return {'items': [{'title': 'Headline', 'url': 'https://a1score.app'}]};
   return null;
 }
@@ -153,6 +160,8 @@ void main() {
     'market transfers': const MarketScreen(initialTab: 3),
     'market leagues': const MarketScreen(initialTab: 4),
     'news': const NewsScreen(),
+    'profile': const ProfileScreen(),
+    'favourites': const FavouritesScreen(),
   };
 
   for (final e in screens.entries) {
@@ -262,6 +271,27 @@ void main() {
     expect(find.text('Ben White'), findsOneWidget);
     await tester.tap(find.text('MARKET VALUE').first);
     await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('favourites persist with labels and the profile switches currency', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.runAsync(() => Prefs.instance.load());
+    final f = Favourites.instance;
+    f.toggle(f.teams, 'c1', label: 'Real Madrid');
+    final saved = await tester.runAsync(SharedPreferences.getInstance);
+    expect(saved!.getStringList('fav.teams'), ['c1']);
+
+    await tester.pumpWidget(MaterialApp(theme: buildTheme(Brightness.light), home: const FavouritesScreen()));
+    expect(find.text('Real Madrid'), findsOneWidget);
+    await tester.tap(find.byTooltip('Unfollow'));
+    await tester.pump();
+    expect(find.text('Nothing followed yet'), findsOneWidget);
+
+    await tester.runAsync(() => Prefs.instance.setCurrency('GBP'));
+    expect(formatEur(10000000), startsWith('£'));
+    expect(saved.getString('currency'), 'GBP');
+    await tester.runAsync(() => Prefs.instance.setCurrency('EUR'));
     expect(tester.takeException(), isNull);
   });
 }
