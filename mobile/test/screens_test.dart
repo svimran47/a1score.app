@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:a1score/api/api_client.dart';
 import 'package:a1score/screens/all_games_screen.dart';
+import 'package:a1score/screens/home_screen.dart';
 import 'package:a1score/screens/league_screen.dart';
 import 'package:a1score/screens/leagues_screen.dart';
 import 'package:a1score/screens/match_screen.dart';
@@ -45,6 +46,19 @@ Object? _body(Uri u) {
       },
     };
   }
+  if (p.endsWith('/players/movers')) {
+    return {'data': {
+      'risers': [{'slug': 'lamine-yamal', 'fullName': 'Lamine Yamal', 'latestValue': 200000000, 'diff': 20000000}],
+      'fallers': [{'slug': 'vinicius-junior', 'fullName': 'Vinicius Junior', 'latestValue': 150000000, 'diff': -20000000}],
+    }};
+  }
+  if (p.endsWith('/transfers')) {
+    return {'data': [{'id': 't1', 'fromClubName': 'Bayer 04 Leverkusen', 'toClubName': 'Liverpool FC', 'date': '2025-07-01', 'feeEur': 125000000,
+      'player': {'commonName': 'Florian Wirtz', 'slug': 'florian-wirtz'}}]};
+  }
+  if (p.endsWith('/clubs')) {
+    return {'data': [{'id': 'c1', 'name': 'Real Madrid', 'totalSquadValue': 1340000000, 'leagueName': 'LaLiga', 'playerCount': 24}]};
+  }
   if (p.endsWith('/most-valuable')) {
     return {'data': [{'slug': 'erling-haaland', 'name': 'Erling Haaland', 'valueEur': 180000000}]};
   }
@@ -79,6 +93,7 @@ void main() {
   });
 
   final screens = <String, Widget>{
+    'home': const HomeScreen(),
     'all games': const AllGamesScreen(),
     'live': const AllGamesScreen(liveOnly: true),
     'match': const MatchScreen(id: '1'),
@@ -99,4 +114,27 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     });
   }
+
+  testWidgets('home swipes to the next day and opens the calendar', (tester) async {
+    // Tall enough that every home section is laid out.
+    tester.view.physicalSize = const Size(1080, 6000);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(MaterialApp(theme: buildTheme(Brightness.light), home: const HomeScreen()));
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.text('Florian Wirtz'), findsOneWidget);
+    expect(find.text('Real Madrid'), findsOneWidget);
+
+    await tester.fling(find.byType(PageView), const Offset(-400, 0), 1500);
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.byTooltip('Calendar'));
+    await tester.pumpAndSettle();
+    expect(find.text('TOMORROW'), findsOneWidget);
+    await tester.tap(find.text('TODAY').last);
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
 }

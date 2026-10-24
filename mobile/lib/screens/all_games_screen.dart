@@ -5,10 +5,10 @@ import 'package:go_router/go_router.dart';
 
 import '../api/api_client.dart';
 import '../api/models.dart';
-import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
 import '../util/format.dart';
 import '../widgets/common.dart';
+import '../widgets/date_strip.dart';
 import '../widgets/match_widgets.dart';
 
 const _filters = ['all', 'live', 'finished', 'upcoming'];
@@ -29,7 +29,7 @@ class _AllGamesScreenState extends State<AllGamesScreen> with SingleTickerProvid
         ..addListener(() {
           if (!_tabs.indexIsChanging) _load();
         });
-  DateTime _day = DateTime.now();
+  DateTime _day = dateOnly(DateTime.now());
   late Future<List<LeagueGroup>> _future;
   Timer? _poll;
 
@@ -58,20 +58,14 @@ class _AllGamesScreenState extends State<AllGamesScreen> with SingleTickerProvid
     }, onError: (_) {});
   }
 
-  bool get _isToday => DateUtils.isSameDay(_day, DateTime.now());
-
-  Future<void> _pickDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _day,
-      firstDate: now.subtract(const Duration(days: 30)),
-      lastDate: now.add(const Duration(days: 30)),
-    );
-    if (picked != null) {
-      _day = picked;
-      _load();
-    }
+  /// Swipe left for the next day, right for the previous one.
+  void _swipe(DragEndDetails d) {
+    final v = d.primaryVelocity ?? 0;
+    if (v.abs() < 300) return;
+    final next = _day.add(Duration(days: v < 0 ? 1 : -1));
+    if (indexForDay(next) < 0 || indexForDay(next) > dayRange * 2) return;
+    _day = next;
+    _load();
   }
 
   @override
@@ -92,70 +86,54 @@ class _AllGamesScreenState extends State<AllGamesScreen> with SingleTickerProvid
         bottom: PrimaryTabBar(controller: _tabs, labels: _filterLabels),
       ),
       body: Column(children: [
-        SizedBox(
-          height: Sizes.dateRow,
-          child: Row(children: [
-            IconButton(
-              tooltip: 'Previous day',
-              onPressed: () {
-                _day = _day.subtract(const Duration(days: 1));
-                _load();
-              },
-              icon: Icon(Icons.chevron_left, color: c.contentPrimary),
-            ),
-            Expanded(
-              child: Text(
-                _isToday ? 'Today ${dayMonth(_day)}' : dayMonth(_day),
-                style: A1Text.dateRow.copyWith(color: c.contentPrimary),
-              ),
-            ),
-            IconButton(
-              tooltip: 'Next day',
-              onPressed: () {
-                _day = _day.add(const Duration(days: 1));
-                _load();
-              },
-              icon: Icon(Icons.chevron_right, color: c.contentPrimary),
-            ),
-            IconButton(tooltip: 'Pick a date', onPressed: _pickDate, icon: Icon(Icons.calendar_month_outlined, color: c.contentPrimary)),
-            const SizedBox(width: Space.s),
-          ]),
+        ColoredBox(
+          color: c.appBar,
+          child: DateStrip(
+            selected: _day,
+            onSelected: (d) {
+              _day = d;
+              _load();
+            },
+          ),
         ),
         Expanded(
-          child: FutureBuilder<List<LeagueGroup>>(
-            future: _future,
-            builder: (context, snap) => AsyncBody<List<LeagueGroup>>(
-              snapshot: snap,
-              onRetry: _load,
-              isEmpty: (g) => g.isEmpty,
-              empty: EmptyState(
-                icon: Icons.sports_soccer,
-                title: _tabs.index == 1 ? 'No live matches right now' : 'No matches on this day',
-              ),
-              builder: (groups) => RefreshIndicator(
-                color: c.brand,
-                onRefresh: () async {
-                  _load();
-                  await _future;
-                },
-                child: CustomScrollView(slivers: [
-                  for (final g in groups) ...[
-                    SliverToBoxAdapter(
-                      child: LeagueHeader(
-                        league: g.league,
-                        onTap: g.league.id.isEmpty ? null : () => context.push('/league/${g.league.id}', extra: g.league),
+          child: GestureDetector(
+            onHorizontalDragEnd: _swipe,
+            child: FutureBuilder<List<LeagueGroup>>(
+              future: _future,
+              builder: (context, snap) => AsyncBody<List<LeagueGroup>>(
+                snapshot: snap,
+                onRetry: _load,
+                isEmpty: (g) => g.isEmpty,
+                empty: EmptyState(
+                  icon: Icons.sports_soccer,
+                  title: _tabs.index == 1 ? 'No live matches right now' : 'No matches on this day',
+                ),
+                builder: (groups) => RefreshIndicator(
+                  color: c.brand,
+                  onRefresh: () async {
+                    _load();
+                    await _future;
+                  },
+                  child: CustomScrollView(slivers: [
+                    for (final g in groups) ...[
+                      SliverToBoxAdapter(
+                        child: LeagueHeader(
+                          league: g.league,
+                          onTap: g.league.id.isEmpty ? null : () => context.push('/league/${g.league.id}', extra: g.league),
+                        ),
                       ),
-                    ),
-                    SliverList.builder(
-                      itemCount: g.matches.length,
-                      itemBuilder: (_, i) => MatchRow(
-                        match: g.matches[i],
-                        onTap: () => context.push('/match/${g.matches[i].id}'),
+                      SliverList.builder(
+                        itemCount: g.matches.length,
+                        itemBuilder: (_, i) => MatchRow(
+                          match: g.matches[i],
+                          onTap: () => context.push('/match/${g.matches[i].id}'),
+                        ),
                       ),
-                    ),
-                  ],
-                  const SliverToBoxAdapter(child: SizedBox(height: Space.xxl)),
-                ]),
+                    ],
+                    const SliverToBoxAdapter(child: SizedBox(height: Space.xxl)),
+                  ]),
+                ),
               ),
             ),
           ),

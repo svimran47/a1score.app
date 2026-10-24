@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'api/models.dart';
 import 'screens/all_games_screen.dart';
 import 'screens/favourites_screen.dart';
+import 'screens/home_screen.dart';
 import 'screens/league_screen.dart';
 import 'screens/leagues_screen.dart';
 import 'screens/match_screen.dart';
@@ -23,7 +24,7 @@ final router = GoRouter(
     StatefulShellRoute.indexedStack(
       builder: (context, state, shell) => _Shell(shell: shell),
       branches: [
-        StatefulShellBranch(routes: [GoRoute(path: '/', builder: (_, _) => const AllGamesScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/', builder: (_, _) => const HomeScreen())]),
         StatefulShellBranch(routes: [GoRoute(path: '/live', builder: (_, _) => const AllGamesScreen(liveOnly: true))]),
         StatefulShellBranch(routes: [GoRoute(path: '/favourites', builder: (_, _) => const FavouritesScreen())]),
         StatefulShellBranch(routes: [GoRoute(path: '/news', builder: (_, _) => const NewsScreen())]),
@@ -48,7 +49,7 @@ class _Shell extends StatelessWidget {
   final StatefulNavigationShell shell;
 
   static const _items = [
-    (Icons.sports_soccer_outlined, Icons.sports_soccer, 'All games'),
+    (Icons.home_outlined, Icons.home_rounded, 'Home'),
     (Icons.play_circle_outline, Icons.play_circle, 'Live'),
     (Icons.star_outline_rounded, Icons.star_rounded, 'Favourites'),
     (Icons.article_outlined, Icons.article, 'News'),
