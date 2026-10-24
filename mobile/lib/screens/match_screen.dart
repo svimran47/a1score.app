@@ -11,10 +11,11 @@ import '../theme/tokens.dart';
 import '../util/format.dart';
 import '../widgets/common.dart';
 import '../widgets/match_widgets.dart';
+import '../widgets/lineup_pitch.dart';
 import '../widgets/momentum.dart';
 import 'standings_table.dart';
 
-const _tabs = ['Summary', 'Stats', 'Market value', 'H2H', 'Standings'];
+const _tabs = ['Summary', 'Stats', 'Lineups', 'Market value', 'H2H', 'Standings'];
 
 class MatchScreen extends StatefulWidget {
   const MatchScreen({super.key, required this.id});
@@ -88,6 +89,7 @@ class _MatchScreenState extends State<MatchScreen> {
               body: TabBarView(children: [
                 _SummaryTab(d: d),
                 _StatsTab(d: d),
+                _LineupsTab(d: d),
                 _ValueTab(d: d),
                 _H2hTab(d: d),
                 d.standings.isEmpty
@@ -349,6 +351,92 @@ class _H2hTab extends StatelessWidget {
             ),
           ]),
         ),
+      const SizedBox(height: Space.xxl),
+    ]);
+  }
+}
+
+/// Both XIs on the pitch (switch badges between rating, value and age), then
+/// substitutes, coaches and missing players for each side.
+class _LineupsTab extends StatefulWidget {
+  const _LineupsTab({required this.d});
+  final MatchDetail d;
+
+  @override
+  State<_LineupsTab> createState() => _LineupsTabState();
+}
+
+class _LineupsTabState extends State<_LineupsTab> {
+  PitchView _view = PitchView.overview;
+
+  @override
+  Widget build(BuildContext context) {
+    final d = widget.d;
+    final home = d.homeLineup, away = d.awayLineup;
+    if (home == null || away == null) {
+      return const EmptyState(icon: Icons.groups_outlined, title: 'Lineups appear about an hour before kick-off');
+    }
+    final c = context.c;
+    Widget sideRows(LineupPlayer Function(int) at, int count) => Column(children: [
+          for (var i = 0; i < count; i++)
+            InkWell(
+              onTap: () => showPlayerSheet(context, at(i)),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: Space.gutter, vertical: Space.m),
+                decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.border))),
+                child: Row(children: [
+                  SizedBox(width: 28, child: Text(at(i).shirt ?? '', style: A1Text.statValue.copyWith(color: c.contentSecondary))),
+                  Expanded(child: Text(at(i).name, style: A1Text.statLabel.copyWith(color: c.contentPrimary))),
+                  if ((at(i).valueEur ?? 0) > 0) Text(formatEur(at(i).valueEur), style: A1Text.meta.copyWith(color: c.contentSecondary)),
+                ]),
+              ),
+            ),
+        ]);
+    return ListView(padding: EdgeInsets.zero, children: [
+      ChipTabs(
+        labels: const ['Overview', 'Market value', 'Age'],
+        selected: _view.index,
+        onSelected: (i) => setState(() {
+          _view = PitchView.values[i];
+        }),
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Space.gutter),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(Radii.large),
+          child: LineupPitch(home: home, away: away, view: _view),
+        ),
+      ),
+      const SizedBox(height: Space.l),
+      for (final (team, l) in [(d.summary.home, home), (d.summary.away, away)]) ...[
+        SectionBar(team.name, trailing: l.formation),
+        sideRows((i) => l.starters[i], l.starters.length),
+        if (l.subs.isNotEmpty) ...[
+          const SectionBar('Substitutes'),
+          sideRows((i) => l.subs[i], l.subs.length),
+        ],
+        if (l.coach != null) ...[
+          const SectionBar('Coach'),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Space.gutter, vertical: Space.m),
+            child: Text(l.coach!, style: A1Text.statLabel.copyWith(color: c.contentPrimary)),
+          ),
+        ],
+        if (l.missing.isNotEmpty) ...[
+          const SectionBar('Missing players'),
+          for (final (name, reason) in l.missing)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: Space.gutter, vertical: Space.m),
+              decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.border))),
+              child: Row(children: [
+                Icon(Icons.healing_rounded, size: 16, color: c.live),
+                const SizedBox(width: Space.m),
+                Expanded(child: Text(name, style: A1Text.statLabel.copyWith(color: c.contentPrimary))),
+                Text(reason, style: A1Text.meta.copyWith(color: c.contentTertiary)),
+              ]),
+            ),
+        ],
+      ],
       const SizedBox(height: Space.xxl),
     ]);
   }
