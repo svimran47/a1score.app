@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../api/api_client.dart';
 import '../api/models.dart';
@@ -10,7 +11,7 @@ import 'standings_table.dart';
 import '../util/format.dart';
 import '../widgets/match_widgets.dart';
 
-/// League page: header, then Standings and Market value tabs.
+/// League page: header, then Standings, Top scorers and Market value tabs.
 class LeagueScreen extends StatefulWidget {
   const LeagueScreen({super.key, required this.id, this.league});
   final String id;
@@ -21,7 +22,8 @@ class LeagueScreen extends StatefulWidget {
 }
 
 class _LeagueScreenState extends State<LeagueScreen> with SingleTickerProviderStateMixin {
-  late final TabController _tabs = TabController(length: 2, vsync: this);
+  late final TabController _tabs = TabController(length: 3, vsync: this);
+  StandingsMode _mode = StandingsMode.short;
 
   @override
   void dispose() {
@@ -47,12 +49,12 @@ class _LeagueScreenState extends State<LeagueScreen> with SingleTickerProviderSt
             valueListenable: favs.leagues,
             builder: (_, set, _) => IconButton(
               tooltip: 'Follow league',
-              onPressed: () => favs.toggle(favs.leagues, widget.id),
+              onPressed: () => favs.toggle(favs.leagues, widget.id, label: l?.name),
               icon: Icon(set.contains(widget.id) ? Icons.star_rounded : Icons.star_outline_rounded),
             ),
           ),
         ],
-        bottom: PrimaryTabBar(controller: _tabs, labels: const ['Standings', 'Market value']),
+        bottom: PrimaryTabBar(controller: _tabs, labels: const ['Standings', 'Top scorers', 'Market value']),
       ),
       body: FutureBuilder<LeagueDetail?>(
         future: _future,
@@ -68,10 +70,20 @@ class _LeagueScreenState extends State<LeagueScreen> with SingleTickerProviderSt
               children: [
                 ListView(
                   children: [
-                    if (l != null) _header(c, l, detail!),
-                    StandingsTable(rows: detail!.standings),
+                    _header(c, l ?? LeagueRef(id: widget.id, name: detail!.name ?? 'League'), detail!),
+                    ChipTabs(
+                      labels: const ['Short', 'Full', 'Form'],
+                      selected: _mode.index,
+                      onSelected: (i) => setState(() {
+                        _mode = StandingsMode.values[i];
+                      }),
+                    ),
+                    StandingsTable(rows: detail.standings, mode: _mode),
+                    if (detail.legend.isNotEmpty) StandingsLegend(items: detail.legend),
+                    const SizedBox(height: Space.xxl),
                   ],
                 ),
+                _Leaders(scorers: detail.topScorers, assists: detail.topAssists),
                 _ClubValues(clubs: detail.clubs),
               ],
             ),
@@ -121,6 +133,7 @@ class _ClubValues extends StatelessWidget {
         for (final (i, club) in clubs.indexed)
           ValueRow(
             rank: i + 1,
+            onTap: club.id.isEmpty ? null : () => context.push('/club/${club.id}'),
             player: PlayerValueRow(
               id: club.id,
               name: club.name,
@@ -131,5 +144,40 @@ class _ClubValues extends StatelessWidget {
           ),
       ],
     );
+  }
+}
+
+/// Top scorers and assists, as on the website's league page.
+class _Leaders extends StatelessWidget {
+  const _Leaders({required this.scorers, required this.assists});
+  final List<LeaderRow> scorers;
+  final List<LeaderRow> assists;
+
+  @override
+  Widget build(BuildContext context) {
+    if (scorers.isEmpty && assists.isEmpty) {
+      return const EmptyState(icon: Icons.sports_soccer, title: 'No scorer stats for this competition yet');
+    }
+    final c = context.c;
+    Widget row(int i, LeaderRow p) => Container(
+          padding: const EdgeInsets.symmetric(horizontal: Space.gutter, vertical: Space.m + 2),
+          decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.border))),
+          child: Row(children: [
+            SizedBox(width: 24, child: Text('${i + 1}', style: A1Text.statValue.copyWith(fontWeight: FontWeight.w700, color: c.contentSecondary))),
+            Crest(url: p.imageUrl, label: p.name, size: 36),
+            const SizedBox(width: Space.l),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(p.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: A1Text.valueName.copyWith(fontSize: 14, color: c.contentPrimary)),
+                if (p.teamName != null) Text(p.teamName!, style: A1Text.meta.copyWith(color: c.contentTertiary)),
+              ]),
+            ),
+            Text('${p.value}', style: A1Text.calloutValue.copyWith(fontSize: 20, color: c.brand)),
+          ]),
+        );
+    return ListView(children: [
+      if (scorers.isNotEmpty) ...[const SectionBar('Top scorers', trailing: 'Goals'), for (final (i, p) in scorers.indexed) row(i, p)],
+      if (assists.isNotEmpty) ...[const SectionBar('Top assists', trailing: 'Assists'), for (final (i, p) in assists.indexed) row(i, p)],
+    ]);
   }
 }

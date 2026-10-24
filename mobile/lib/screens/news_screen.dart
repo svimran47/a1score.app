@@ -6,6 +6,7 @@ import '../api/models.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
 import '../util/format.dart';
+import '../util/images.dart';
 import '../widgets/common.dart';
 
 const _categories = [null, 'transfers', 'premier-league', 'champions-league'];
@@ -101,7 +102,7 @@ class _Hero extends StatelessWidget {
                 borderRadius: BorderRadius.circular(Radii.large),
                 child: AspectRatio(
                   aspectRatio: 16 / 9,
-                  child: Image.network(item.imageUrl!, fit: BoxFit.cover, errorBuilder: (_, _, _) => Container(color: c.bgSecondary)),
+                  child: Image.network(resolveImage(item.imageUrl)!, fit: BoxFit.cover, errorBuilder: (_, _, _) => Container(color: c.bgSecondary)),
                 ),
               ),
             const SizedBox(height: Space.l),
@@ -142,7 +143,7 @@ class _Item extends StatelessWidget {
               const SizedBox(width: Space.l),
               ClipRRect(
                 borderRadius: BorderRadius.circular(Radii.medium),
-                child: Image.network(item.imageUrl!, width: 120, height: 84, fit: BoxFit.cover,
+                child: Image.network(resolveImage(item.imageUrl)!, width: 120, height: 84, fit: BoxFit.cover,
                     errorBuilder: (_, _, _) => Container(width: 120, height: 84, color: c.bgSecondary)),
               ),
             ],

@@ -86,15 +86,13 @@ class MatchRow extends StatelessWidget {
           height: Sizes.matchRow,
           decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.border))),
           child: Row(children: [
-            SizedBox(width: 39, child: _FavStar(id: m.id)),
-            SizedBox(
-              width: 27,
-              child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Crest(url: m.home.crestUrl, label: m.home.name),
-                const SizedBox(height: 7),
-                Crest(url: m.away.crestUrl, label: m.away.name),
-              ]),
-            ),
+            SizedBox(width: 39, child: _FavStar(id: m.id, label: '${m.home.name} – ${m.away.name}')),
+            Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Crest(url: m.home.crestUrl, label: m.home.name),
+              const SizedBox(height: 7),
+              Crest(url: m.away.crestUrl, label: m.away.name),
+            ]),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(m.home.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: name(m.winner == 1)),
@@ -133,8 +131,9 @@ class MatchRow extends StatelessWidget {
 }
 
 class _FavStar extends StatelessWidget {
-  const _FavStar({required this.id});
+  const _FavStar({required this.id, this.label});
   final String id;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +146,7 @@ class _FavStar extends StatelessWidget {
           tooltip: on ? 'Unfollow match' : 'Follow match',
           padding: EdgeInsets.zero,
           iconSize: 20,
-          onPressed: () => Favourites.instance.toggle(Favourites.instance.matches, id),
+          onPressed: () => Favourites.instance.toggle(Favourites.instance.matches, id, label: label),
           icon: Icon(on ? Icons.star_rounded : Icons.star_outline_rounded, color: on ? c.favouriteStar : c.statMuted),
         );
       },

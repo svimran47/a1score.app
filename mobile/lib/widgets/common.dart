@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
 import '../util/format.dart';
+import '../util/images.dart';
 
 /// Network image in a circle or rounded tile, with an initials fallback.
 class Crest extends StatelessWidget {
@@ -21,13 +22,17 @@ class Crest extends StatelessWidget {
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(color: c.bgSecondary, borderRadius: r),
-      child: Text(initials(label),
-          style: A1Text.badge.copyWith(fontSize: size * 0.4, color: c.contentSecondary, letterSpacing: 0)),
+      padding: EdgeInsets.all(size * 0.15),
+      child: FittedBox(
+        child: Text(initials(label),
+            maxLines: 1, style: A1Text.badge.copyWith(fontSize: size * 0.4, color: c.contentSecondary, letterSpacing: 0)),
+      ),
     );
-    if (url == null || url!.isEmpty) return fallback;
+    final src = resolveImage(url);
+    if (src == null) return fallback;
     return ClipRRect(
       borderRadius: r,
-      child: Image.network(url!, width: size, height: size, fit: BoxFit.contain,
+      child: Image.network(src, width: size, height: size, fit: BoxFit.contain,
           errorBuilder: (_, _, _) => fallback),
     );
   }

@@ -84,6 +84,19 @@ class ApiClient {
     return [for (final c in (j['data'] as List? ?? const [])) ClubValueRow.fromJson(c as Json)];
   }
 
+  Future<ClubDetail> club(String id) async {
+    final j = await _get('/clubs/$id', {'include': 'details'}) as Json;
+    return ClubDetail.fromJson((j['data'] ?? j) as Json);
+  }
+
+  /// EUR → [code] reference rate from /api/fx (ECB).
+  Future<double> fxRate(String code) async {
+    final j = await _get('/fx') as Json;
+    final r = (j['rates'] as Json?)?[code];
+    if (r is! num) throw ApiException(503, 'No $code rate');
+    return r.toDouble();
+  }
+
   Future<PlayerProfile> player(String idOrSlug) async {
     final j = await _get('/players/$idOrSlug') as Json;
     return PlayerProfile.fromJson((j['data'] ?? j) as Json);
@@ -92,6 +105,14 @@ class ApiClient {
   Future<List<LeagueRef>> leagues() async {
     final j = await _get('/leagues') as Json;
     return [for (final l in (j['data'] as List? ?? const [])) LeagueRef.fromJson(l as Json)];
+  }
+
+  Future<LeagueCatalog> leagueCatalog() async {
+    final j = await _get('/leagues', {'scope': 'all'}) as Json;
+    return LeagueCatalog(
+      valued: [for (final l in (j['data'] as List? ?? const [])) LeagueRef.fromJson(l as Json)],
+      competitions: [for (final l in (j['competitions'] as List? ?? const [])) LeagueRef.fromJson(l as Json)],
+    );
   }
 
   /// League page data (standings with squad values, clubs). Null on 404, i.e. before
