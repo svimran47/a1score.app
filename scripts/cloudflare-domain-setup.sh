@@ -3,7 +3,7 @@
 # scripts/cloudflare-domain-setup.sh
 #
 # Idempotent setup of every domain-level setting for a1score.app on Cloudflare:
-#   - DNS:       www CNAME, null MX, SPF, DMARC, DKIM null key, CAA
+#   - DNS:       www CNAME, SPF, DMARC, DKIM null key, CAA (optional null MX)
 #   - Redirects: www.a1score.app -> https://a1score.app (301, path + query kept)
 #   - TLS/edge:  Full (strict), TLS >= 1.2, TLS 1.3, Always HTTPS, HSTS preload,
 #                HTTP/3, Brotli, Automatic HTTPS Rewrites
@@ -18,9 +18,11 @@
 #
 # Optional env:
 #   ZONE_NAME                 default: a1score.app
+#   CLOUDFLARE_ZONE_ID        zone id; skips the lookup by name
 #   DMARC_RUA                 aggregate-report mailbox, e.g. mailto:dmarc@example.com
 #   GOOGLE_SITE_VERIFICATION  value of a google-site-verification=... TXT to add
 #   SKIP_DNSSEC=1             do not touch DNSSEC
+#   NULL_MX=1                 publish a Null MX (domain receives no mail)
 #
 # Token permissions (Zone resources: a1score.app):
 #   Zone:Read, DNS:Edit, Zone Settings:Edit, Single Redirect:Edit
@@ -29,6 +31,7 @@
 set -euo pipefail
 
 ZONE_NAME="${ZONE_NAME:-a1score.app}"
+ZONE_ID="${CLOUDFLARE_ZONE_ID:-}"
 DRY_RUN="${DRY_RUN:-0}"
 API="${CF_API_BASE:-https://api.cloudflare.com/client/v4}"
 
@@ -67,7 +70,8 @@ mutate() {
 }
 
 step "Resolving zone $ZONE_NAME"
-ZONE_ID=$(cf GET "/zones?name=$ZONE_NAME" | jq -r '.[0].id // empty')
+# A token scoped to one zone may lack Zone:Read on /zones listing; accept the id directly.
+[[ -n "$ZONE_ID" ]] || ZONE_ID=$(cf GET "/zones?name=$ZONE_NAME" | jq -r '.[0].id // empty')
 [[ -n "$ZONE_ID" ]] || { echo "Zone $ZONE_NAME not found for this token" >&2; exit 1; }
 log "zone id: $ZONE_ID"
 
@@ -120,11 +124,15 @@ upsert_record "$(jq -n --arg n "www.$ZONE_NAME" --arg c "$ZONE_NAME" \
   '{type:"CNAME", name:$n, content:$c, proxied:true, ttl:1, comment:"301 to apex via redirect rule"}')" \
   'true'
 
-# The domain sends and receives no mail: lock it down so it can't be spoofed.
-# Null MX (RFC 7505): explicitly accepts no mail.
-upsert_record "$(jq -n --arg n "$ZONE_NAME" \
-  '{type:"MX", name:$n, content:".", priority:0, ttl:3600, comment:"Null MX - no inbound mail"}')" \
-  '.content == "." or .content == ""'
+# The domain sends no mail: lock it down so it can't be spoofed.
+# Inbound mail is left to Cloudflare Email Routing (admin@ / privacy@ are
+# published on the site). NULL_MX=1 instead declares that it accepts no mail
+# at all (RFC 7505); never combine that with Email Routing's MX records.
+if [[ "${NULL_MX:-0}" == "1" ]]; then
+  upsert_record "$(jq -n --arg n "$ZONE_NAME" \
+    '{type:"MX", name:$n, content:".", priority:0, ttl:3600, comment:"Null MX - no inbound mail"}')" \
+    '.content == "." or .content == ""'
+fi
 
 # SPF: no host is authorised to send as @a1score.app.
 upsert_record "$(jq -n --arg n "$ZONE_NAME" \
