@@ -4,8 +4,8 @@ import 'package:intl/intl.dart' show DateFormat;
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
 
-/// Days the date strip and day pager cover, either side of today.
-const dayRange = 30;
+/// Days the date header and day pager cover, either side of today.
+const dayRange = 10;
 
 DateTime dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 
@@ -13,36 +13,77 @@ DateTime dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 DateTime dayForIndex(int i) => dateOnly(DateTime.now()).add(Duration(days: i - dayRange));
 int indexForDay(DateTime d) => dateOnly(d).difference(dateOnly(DateTime.now())).inDays + dayRange;
 
-/// Horizontal strip of days on the app bar, with the selected day centred and a
-/// calendar button that opens a month view.
-class DateStrip extends StatefulWidget {
-  const DateStrip({super.key, required this.selected, required this.onSelected});
+/// "Today 25.10.", "Yesterday 24.10.", "Sun 26.10."
+String dayLabel(DateTime d) {
+  final dm = DateFormat('dd.MM.').format(d);
+  return switch (dateOnly(d).difference(dateOnly(DateTime.now())).inDays) {
+    0 => 'Today $dm',
+    1 => 'Tomorrow $dm',
+    -1 => 'Yesterday $dm',
+    _ => '${DateFormat('EEE').format(d)} $dm',
+  };
+}
+
+/// The 48 dp date row under the app bar: selected day on the left, calendar button
+/// on the right that drops down a short scrolling list of days.
+class DateHeader extends StatelessWidget {
+  const DateHeader({super.key, required this.selected, required this.onSelected});
   final DateTime selected;
   final ValueChanged<DateTime> onSelected;
 
-  static const double height = 64;
+  Future<void> _open(BuildContext context) async {
+    final box = context.findRenderObject() as RenderBox?;
+    final top = box == null ? 120.0 : box.localToGlobal(Offset(0, box.size.height)).dy;
+    final picked = await showDialog<DateTime>(
+      context: context,
+      barrierColor: Colors.black26,
+      builder: (_) => _DayDropdown(selected: selected, top: top),
+    );
+    if (picked != null) onSelected(picked);
+  }
 
   @override
-  State<DateStrip> createState() => _DateStripState();
+  Widget build(BuildContext context) {
+    final c = context.c;
+    return Material(
+      color: c.bgPrimary,
+      child: InkWell(
+        onTap: () => _open(context),
+        child: Container(
+          height: Sizes.dateRow,
+          padding: const EdgeInsets.only(left: Space.gutter, right: Space.s),
+          decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.border))),
+          child: Row(children: [
+            Expanded(child: Text(dayLabel(selected), style: A1Text.dateRow.copyWith(color: c.contentPrimary))),
+            IconButton(
+              tooltip: 'Calendar',
+              onPressed: () => _open(context),
+              icon: Icon(Icons.calendar_month_outlined, color: c.contentPrimary),
+            ),
+          ]),
+        ),
+      ),
+    );
+  }
 }
 
-class _DateStripState extends State<DateStrip> {
-  static const _itemWidth = 54.0;
-  static const _gap = 6.0;
-  final _scroll = ScrollController();
-  double _viewport = 0;
+/// Dropdown under the calendar button: one row per day, scrolls up and down,
+/// opened on the selected day.
+class _DayDropdown extends StatefulWidget {
+  const _DayDropdown({required this.selected, required this.top});
+  final DateTime selected;
+  final double top;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _centre(animate: false));
-  }
+  State<_DayDropdown> createState() => _DayDropdownState();
+}
 
-  @override
-  void didUpdateWidget(DateStrip old) {
-    super.didUpdateWidget(old);
-    if (!DateUtils.isSameDay(old.selected, widget.selected)) _centre();
-  }
+class _DayDropdownState extends State<_DayDropdown> {
+  static const _rowHeight = 44.0;
+  static const _visibleRows = 7;
+  late final _scroll = ScrollController(
+    initialScrollOffset: (indexForDay(widget.selected) - _visibleRows ~/ 2).clamp(0, dayRange * 2) * _rowHeight,
+  );
 
   @override
   void dispose() {
@@ -50,150 +91,47 @@ class _DateStripState extends State<DateStrip> {
     super.dispose();
   }
 
-  void _centre({bool animate = true}) {
-    if (!_scroll.hasClients) return;
-    final i = indexForDay(widget.selected);
-    final target = (Space.m + i * (_itemWidth + _gap) + _itemWidth / 2 - _viewport / 2).clamp(
-      0.0,
-      _scroll.position.maxScrollExtent,
-    );
-    if (animate) {
-      _scroll.animateTo(target, duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
-    } else {
-      _scroll.jumpTo(target);
-    }
-  }
-
-  Future<void> _openCalendar() async {
-    final picked = await showModalBottomSheet<DateTime>(
-      context: context,
-      showDragHandle: true,
-      builder: (_) => _CalendarSheet(selected: widget.selected),
-    );
-    if (picked != null) widget.onSelected(picked);
-  }
-
   @override
   Widget build(BuildContext context) {
     final c = context.c;
     final today = dateOnly(DateTime.now());
-    return SizedBox(
-      height: DateStrip.height,
-      child: Row(
-        children: [
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, box) {
-                _viewport = box.maxWidth;
-                return ListView.separated(
-                  controller: _scroll,
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: Space.m, vertical: 6),
-                  itemCount: dayRange * 2 + 1,
-                  separatorBuilder: (_, _) => const SizedBox(width: _gap),
-                  itemBuilder: (_, i) {
-                    final d = dayForIndex(i);
-                    final active = DateUtils.isSameDay(d, widget.selected);
-                    final isToday = d == today;
-                    final fg = active ? c.contentInverse : c.appBarContent.withValues(alpha: isToday ? 1 : 0.72);
-                    return Material(
-                      color: active ? c.brand : Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(Radii.large),
-                        side: isToday && !active
-                            ? BorderSide(color: c.appBarContent.withValues(alpha: 0.4))
-                            : BorderSide.none,
-                      ),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(Radii.large),
-                        onTap: () => widget.onSelected(d),
-                        child: SizedBox(
-                          width: _itemWidth,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                isToday ? 'TODAY' : DateFormat('EEE').format(d).toUpperCase(),
-                                style: A1Text.badge.copyWith(color: fg, fontSize: 10),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                DateFormat('d MMM').format(d),
-                                style: A1Text.kickoff.copyWith(color: fg, fontWeight: FontWeight.w700),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+    return Stack(children: [
+      Positioned(
+        top: widget.top,
+        right: Space.m,
+        width: 200,
+        height: _rowHeight * _visibleRows,
+        child: Material(
+          color: c.bgCard,
+          elevation: 8,
+          borderRadius: BorderRadius.circular(Radii.large),
+          clipBehavior: Clip.antiAlias,
+          child: ListView.builder(
+            controller: _scroll,
+            itemExtent: _rowHeight,
+            itemCount: dayRange * 2 + 1,
+            itemBuilder: (_, i) {
+              final d = dayForIndex(i);
+              final on = DateUtils.isSameDay(d, widget.selected);
+              return InkWell(
+                onTap: () => Navigator.pop(context, d),
+                child: Container(
+                  color: on ? c.bgHighlight : null,
+                  padding: const EdgeInsets.symmetric(horizontal: Space.xl),
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    dayLabel(d),
+                    style: A1Text.settingsLabel.copyWith(
+                      color: on ? c.brand : c.contentPrimary,
+                      fontWeight: on || d == today ? FontWeight.w700 : FontWeight.w400,
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
-          IconButton(
-            tooltip: 'Calendar',
-            onPressed: _openCalendar,
-            icon: Icon(Icons.calendar_month_outlined, color: c.appBarContent),
-          ),
-          const SizedBox(width: Space.s),
-        ],
-      ),
-    );
-  }
-}
-
-class _CalendarSheet extends StatelessWidget {
-  const _CalendarSheet({required this.selected});
-  final DateTime selected;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.c;
-    final today = dateOnly(DateTime.now());
-    Widget quick(String label, int offset) {
-      final d = today.add(Duration(days: offset));
-      final on = DateUtils.isSameDay(d, selected);
-      return Expanded(
-        child: OutlinedButton(
-          style: OutlinedButton.styleFrom(
-            backgroundColor: on ? c.brand : null,
-            foregroundColor: on ? c.contentInverse : c.contentPrimary,
-            side: BorderSide(color: on ? c.brand : c.border),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.medium)),
-            padding: const EdgeInsets.symmetric(horizontal: Space.m),
-          ),
-          onPressed: () => Navigator.pop(context, d),
-          child: FittedBox(child: Text(label.toUpperCase(), maxLines: 1, style: A1Text.chip)),
         ),
-      );
-    }
-
-    return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Space.gutter),
-            child: Row(
-              children: [
-                quick('Yesterday', -1),
-                const SizedBox(width: Space.m),
-                quick('Today', 0),
-                const SizedBox(width: Space.m),
-                quick('Tomorrow', 1),
-              ],
-            ),
-          ),
-          CalendarDatePicker(
-            initialDate: selected,
-            firstDate: today.subtract(const Duration(days: dayRange)),
-            lastDate: today.add(const Duration(days: dayRange)),
-            currentDate: today,
-            onDateChanged: (d) => Navigator.pop(context, d),
-          ),
-        ],
       ),
-    );
+    ]);
   }
 }
