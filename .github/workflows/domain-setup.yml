@@ -28,6 +28,7 @@ jobs:
       - name: Run setup script
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
           DMARC_RUA: ${{ vars.DMARC_RUA }}
           GOOGLE_SITE_VERIFICATION: ${{ vars.GOOGLE_SITE_VERIFICATION }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}

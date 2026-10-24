@@ -27,7 +27,7 @@ to the Cloudflare Pages **Custom domains** binding (see `DOMAIN_CUTOVER.md`).
 | Type | Name | Value | Why |
 | --- | --- | --- | --- |
 | CNAME | `www` | `a1score.app` (proxied) | gives `www` an address so the redirect rule can answer |
-| MX | `@` | `0 .` | Null MX (RFC 7505): the domain receives no mail |
+| MX | `@` | `0 .` — **only with `NULL_MX=1`** | Null MX (RFC 7505). Off by default: the site publishes `admin@` and `privacy@`, which should be served by Cloudflare Email Routing instead |
 | TXT | `@` | `v=spf1 -all` | no server may send mail as the domain |
 | TXT | `_dmarc` | `v=DMARC1; p=reject; sp=reject; adkim=s; aspf=s; pct=100` (+ `rua=` if `DMARC_RUA` is set) | receivers reject spoofed mail, subdomains included |
 | TXT | `*._domainkey` | `v=DKIM1; p=` | revokes every DKIM selector |
@@ -36,6 +36,13 @@ to the Cloudflare Pages **Custom domains** binding (see `DOMAIN_CUTOVER.md`).
 
 Other records (for example an existing Search Console TXT) are left alone.
 
+> **Receiving mail at admin@ / privacy@**: Cloudflare dashboard → a1score.app →
+> **Email → Email Routing** → enable, add the destination inbox (it must click
+> the verification email), then add custom addresses `admin@a1score.app` and
+> `privacy@a1score.app`. Cloudflare adds its own MX and SPF records; accept them
+> (SPF becomes `v=spf1 include:_spf.mx.cloudflare.net ~all`). Do not use
+> `NULL_MX=1` together with Email Routing.
+>
 > **When you start sending email** (Resend, Postmark, Google Workspace, …):
 > replace the Null MX with the provider's MX, add its `include:` to SPF
 > (`v=spf1 include:_spf.example.com -all`), add its DKIM selector record, and
@@ -75,6 +82,13 @@ is published automatically. With any other registrar, copy the DS record the
 script prints into the registrar's DNSSEC settings, or the zone stays unsigned
 at the parent. Use `SKIP_DNSSEC=1` to leave DNSSEC alone.
 
+## Applied
+
+First applied 2026-10-24: www CNAME + 301 rule, SPF, DMARC, DKIM revocation,
+CAA (Cloudflare also adds `comodoca.com` itself), SSL Full (strict), TLS 1.3
+without 0-RTT, 2-year HSTS preload, DNSSEC. The registrar is Cloudflare
+Registrar, so the DS record is published at `.app` automatically.
+
 ## Running it
 
 ### 1. Create an API token
@@ -82,12 +96,14 @@ at the parent. Use `SKIP_DNSSEC=1` to leave DNSSEC alone.
 Cloudflare dashboard → **My Profile → API Tokens → Create Token → Custom token**:
 
 - **Permissions** (all *Zone*): `Zone: Read`, `DNS: Edit`, `Zone Settings: Edit`, `Single Redirect: Edit`
+  (optional: `Email Routing Rules: Edit` + account `Email Routing Addresses: Edit` to script mail forwarding)
 - **Zone Resources**: Include → Specific zone → `a1score.app`
 
 ### 2a. From GitHub Actions (recommended)
 
 1. Repo → **Settings → Secrets and variables → Actions**
    - Secret `CLOUDFLARE_API_TOKEN` = the token
+   - Optional secret `CLOUDFLARE_ZONE_ID` (skips the zone lookup, for tokens without `Zone: Read` on the listing)
    - Optional variables `DMARC_RUA` (e.g. `mailto:dmarc-reports@yourdomain`) and `GOOGLE_SITE_VERIFICATION`
 2. **Actions → Cloudflare domain setup → Run workflow** with *dry run* ticked; read the plan.
 3. Run it again with *dry run* unticked.
