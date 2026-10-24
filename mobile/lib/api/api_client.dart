@@ -68,6 +68,22 @@ class ApiClient {
     return [for (final p in (j['data'] as List? ?? const [])) PlayerValueRow.fromJson(p as Json)];
   }
 
+  Future<ValueMovers> movers({int limit = 6}) async {
+    final j = await _get('/players/movers', {'limit': '$limit'}) as Json;
+    return ValueMovers.fromJson((j['data'] ?? j) as Json);
+  }
+
+  Future<List<TransferItem>> transfers({int limit = 20, String type = 'moves'}) async {
+    final j = await _get('/transfers', {'limit': '$limit', 'type': type}) as Json;
+    return [for (final t in (j['data'] as List? ?? const [])) TransferItem.fromJson(t as Json)];
+  }
+
+  /// Clubs ranked by squad value.
+  Future<List<ClubValueRow>> clubs({int limit = 24}) async {
+    final j = await _get('/clubs', {'limit': '$limit'}) as Json;
+    return [for (final c in (j['data'] as List? ?? const [])) ClubValueRow.fromJson(c as Json)];
+  }
+
   Future<PlayerProfile> player(String idOrSlug) async {
     final j = await _get('/players/$idOrSlug') as Json;
     return PlayerProfile.fromJson((j['data'] ?? j) as Json);

@@ -395,13 +395,66 @@ class PlayerValueRow {
     return PlayerValueRow(
       id: _str(j, ['slug', 'id']),
       name: _str(j, ['name', 'commonName', 'fullName', 'displayName'], '—'),
-      valueEur: _int(j['valueEur'] ?? j['marketValue'] ?? j['latestMarketValue']) ?? 0,
+      valueEur: _int(j['valueEur'] ?? j['marketValue'] ?? j['latestMarketValue'] ?? j['latestValue']) ?? 0,
       photoUrl: _pick<String>(j, ['photoUrl', 'imageUrl', 'photo']),
       position: _pick<String>(j, ['position']),
       age: _int(j['age']),
       clubName: _pick<String>(club, ['name']),
       clubLogo: _pick<String>(club, ['logoUrl', 'crestUrl']),
-      trend: trend == null ? null : ValueTrend(_int(trend['diffEur']) ?? 0),
+      trend: trend != null
+          ? ValueTrend(_int(trend['diffEur']) ?? 0)
+          : (j['diff'] is num ? ValueTrend(_int(j['diff'])!) : null),
+    );
+  }
+}
+
+/// /api/players/movers — biggest value changes since the previous valuation.
+class ValueMovers {
+  const ValueMovers({required this.risers, required this.fallers});
+  final List<PlayerValueRow> risers;
+  final List<PlayerValueRow> fallers;
+
+  factory ValueMovers.fromJson(Json j) => ValueMovers(
+        risers: [for (final p in (j['risers'] as List? ?? const [])) PlayerValueRow.fromJson(p as Json)],
+        fallers: [for (final p in (j['fallers'] as List? ?? const [])) PlayerValueRow.fromJson(p as Json)],
+      );
+}
+
+/// /api/transfers row (the website's TransferRecord).
+class TransferItem {
+  const TransferItem({
+    required this.playerName,
+    this.playerSlug,
+    this.photoUrl,
+    this.position,
+    this.fromClub,
+    this.toClub,
+    this.feeEur,
+    this.typeLabel,
+    this.date,
+  });
+  final String playerName;
+  final String? playerSlug;
+  final String? photoUrl;
+  final String? position;
+  final String? fromClub;
+  final String? toClub;
+  final int? feeEur;
+  final String? typeLabel;
+  final DateTime? date;
+
+  factory TransferItem.fromJson(Json j) {
+    final p = j['player'] as Json?;
+    return TransferItem(
+      playerName: _str(p, ['commonName', 'fullName'], 'Player'),
+      playerSlug: _pick<String>(p, ['slug']),
+      photoUrl: _pick<String>(p, ['photoUrl']),
+      position: _pick<String>(p, ['position']),
+      fromClub: _pick<String>(j, ['fromClubName']),
+      toClub: _pick<String>(j, ['toClubName']),
+      feeEur: _int(j['feeEur']),
+      typeLabel: _pick<String>(j, ['displayType', 'transferType']),
+      date: DateTime.tryParse(_str(j, ['date'])),
     );
   }
 }
@@ -488,19 +541,31 @@ class NewsItem {
 }
 
 class ClubValueRow {
-  const ClubValueRow({required this.id, required this.name, required this.squadValueEur, this.logoUrl, this.squadSize});
+  const ClubValueRow({
+    required this.id,
+    required this.name,
+    required this.squadValueEur,
+    this.logoUrl,
+    this.squadSize,
+    this.leagueName,
+    this.averageAge,
+  });
   final String id;
   final String name;
   final int squadValueEur;
   final String? logoUrl;
   final int? squadSize;
+  final String? leagueName;
+  final double? averageAge;
 
   factory ClubValueRow.fromJson(Json j) => ClubValueRow(
         id: _str(j, ['id']),
         name: _str(j, ['name'], '—'),
         squadValueEur: _int(j['totalSquadValue'] ?? j['totalMarketValue']) ?? 0,
         logoUrl: _pick<String>(j, ['logoUrl']),
-        squadSize: _int(j['squadSize']),
+        squadSize: _int(j['squadSize'] ?? j['playerCount']),
+        leagueName: _pick<String>(j, ['leagueName']),
+        averageAge: _double(j['averageAge']),
       );
 }
 
