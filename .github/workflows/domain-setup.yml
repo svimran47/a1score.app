@@ -1,0 +1,34 @@
+name: Cloudflare domain setup
+
+# Applies DNS, redirect, TLS and DNSSEC settings for a1score.app.
+# Runs only on demand; defaults to a dry run so the plan can be reviewed first.
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Plan only, change nothing"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-domain-setup
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    name: Apply domain settings
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run setup script
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          DMARC_RUA: ${{ vars.DMARC_RUA }}
+          GOOGLE_SITE_VERIFICATION: ${{ vars.GOOGLE_SITE_VERIFICATION }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+        run: ./scripts/cloudflare-domain-setup.sh
