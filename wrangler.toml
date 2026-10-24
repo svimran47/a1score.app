@@ -4,6 +4,6 @@ compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"
 
 [vars]
-SITE_URL = "https://a1score.pages.dev"
-NEXT_PUBLIC_SITE_URL = "https://a1score.pages.dev"
+SITE_URL = "https://a1score.app"
+NEXT_PUBLIC_SITE_URL = "https://a1score.app"
 NEXT_PUBLIC_SUPABASE_URL = "https://qqjpgehtutdmkkkxnefu.supabase.co"

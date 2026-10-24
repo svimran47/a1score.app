@@ -15,9 +15,9 @@ function resolveCanonicalOrigin(): string {
     return envUrl.trim().replace(/\/+$/, "");
   }
 
-  // Default to the Cloudflare Pages subdomain in production if not explicitly configured
+  // Default to the canonical custom domain in production if not explicitly configured
   if (process.env.NODE_ENV === "production" && !process.env.NEXT_PHASE_BUILD_IGNORE) {
-    return "https://a1score.pages.dev";
+    return "https://a1score.app";
   }
 
   return "http://localhost:3000";
