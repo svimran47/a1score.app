@@ -27,7 +27,8 @@ class ApiClient {
     final res = await _http.get(uri, headers: headers).timeout(const Duration(seconds: 15));
     if (res.statusCode == 304 && _bodies.containsKey(key)) return _bodies[key];
     if (res.statusCode >= 400) {
-      throw ApiException(res.statusCode, _errorMessage(res.body) ?? 'Request failed (${res.statusCode})');
+      final apiError = _errorMessage(res.body);
+      throw ApiException(res.statusCode, apiError ?? 'Request failed (${res.statusCode}) for $path', fromApi: apiError != null);
     }
     final body = jsonDecode(utf8.decode(res.bodyBytes));
     final etag = res.headers['etag'];
@@ -115,14 +116,15 @@ class ApiClient {
     );
   }
 
-  /// League page data (standings with squad values, clubs). Null on 404, i.e. before
-  /// /api/leagues/[id] is deployed or for a league the site doesn't know.
+  /// League page data (standings with squad values, clubs). Null when the route answers
+  /// "League not found". A 404 page that isn't the route's JSON means the site build
+  /// lacks /api/leagues/[id], so that is thrown rather than shown as an empty table.
   Future<LeagueDetail?> league(String id) async {
     try {
       final j = await _get('/leagues/$id') as Json;
       return LeagueDetail.fromJson((j['data'] ?? j) as Json);
     } on ApiException catch (e) {
-      if (e.status == 404) return null;
+      if (e.status == 404 && e.fromApi) return null;
       rethrow;
     }
   }
@@ -134,9 +136,12 @@ class ApiClient {
 }
 
 class ApiException implements Exception {
-  ApiException(this.status, this.message);
+  ApiException(this.status, this.message, {this.fromApi = false});
   final int status;
   final String message;
+
+  /// True when the body was the API's own JSON error, false for a generic error page.
+  final bool fromApi;
   @override
   String toString() => message;
 }
