@@ -22,7 +22,8 @@ test("design tokens: every var(--x) used in src is defined", () => {
     .join("\n");
   const defined = new Set(Array.from(css.matchAll(/(--[a-zA-Z0-9-]+)\s*:/g), (m) => m[1]));
   // Set at runtime by next/font on <html> (src/app/layout.tsx)
-  defined.add("--font-archivo");
+  defined.add("--font-figtree");
+  defined.add("--font-oxanium");
 
   const missing: string[] = [];
   for (const file of sourceFiles) {

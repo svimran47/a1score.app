@@ -1,15 +1,15 @@
 # a1score.app — Design System & Component Guidelines
 
 > **"Money meets the pitch."**
-> A modern, content-first sports intelligence interface synthesizing match events with player market valuations and transfer records. Inspired by FotMob's clean, high-density, tone-separated design language.
+> A modern, content-first sports intelligence interface synthesizing match events with player market valuations and transfer records. Shares the native app's Royal palette and Flashscore-style density.
 
 ---
 
 ## 1. Design Philosophy
 
 - **Tonal Separation over Borders:** Containers, cards, and sections are differentiated by subtle background tone steps (`--bg-page` → `--bg-card` → `--bg-chip` → `--bg-hover`) rather than rigid outer borders or heavy drop shadows.
-- **Valuation Prominence:** Player and club market valuations are treated as primary signals, rendered prominently with the signature amber accent (`--value-text`), always using tabular figures (`tabular-nums`) to prevent horizontal jitter.
-- **High Information Density & Clean Hierarchy:** Compact rows with 64px standardized touch heights, clear two-line hierarchy (primary title in bold, metadata and context in muted text), and crisp badge indicators.
+- **Valuation Prominence:** Player and club market valuations are treated as primary signals, rendered prominently in the Royal violet (`--value-text`) with Oxanium figures, always using tabular figures (`tabular-nums`) to prevent horizontal jitter.
+- **High Information Density & Clean Hierarchy:** Compact rows with 56px standardized touch heights, clear two-line hierarchy (primary title in bold, metadata and context in muted text), and crisp badge indicators.
 - **Strict Accessibility (WCAG 2.1 AA):** Minimum 4.5:1 contrast across dark and light modes, minimum 44px interactive tap targets on touch devices, visible focus rings on all interactive elements, and multi-modal indicators (color is never the sole carrier of information).
 
 ---
@@ -18,90 +18,37 @@
 
 The design system uses a 3-layer token architecture: **Primitives** → **Semantic Tokens** → **Component Tokens**.
 
-### Layer 1: Primitives
+### Royal palette (2026-10-30)
 
-```css
-/* Inks & Neutrals */
---ink-950: #07080b; /* Page background base */
---ink-900: #0f1116; /* Card surface base */
---ink-800: #181b22; /* Chip & hover base */
---ink-700: #232733; /* Divider line base */
---gray-100: #f4f5f7; /* High contrast primary text */
---gray-400: #9aa1ae; /* Secondary muted text */
+The website shares the native app's **Royal** palette and type pairing, so web and app read as one brand. `src/app/tokens.css` is the source of truth; this table is a summary.
 
-/* Accents & Status */
---amber-400: #ffb020; /* Brand & valuation gold (dark theme) */
---amber-500: #f59e0b; /* Focus ring & button accents */
---green-500: #2ecc71; /* Live indicator & positive trends */
---red-500:   #ff5a5f; /* Negative trends & match alerts */
---blue-500:  #2563eb; /* Informational badges */
---white:     #ffffff;
-
-/* Spacing Scale (4px grid) */
---space-1: 4px;   --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
---space-5: 20px;  --space-6: 24px;  --space-8: 32px;  --space-10: 40px;
-
-/* Radii Scale */
---radius-sm: 10px;  --radius-md: 14px;  --radius-lg: 20px;  --radius-pill: 999px;
-
-/* Typography Scale (see section 2a) */
---font-sans: var(--font-archivo), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
---stretch-heading: 87.5%;  /* semi-condensed: h1, h2, section titles */
---stretch-figure: 80%;     /* condensed: scores, fees, market values */
---text-xs: 0.75rem;    --text-sm: 0.875rem;  --text-base: 1rem;
---text-lg: 1.125rem;   --text-xl: 1.375rem;  --text-2xl: 1.75rem;
-
-/* Motion */
---ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
---dur-fast: 120ms;
---dur-base: 200ms;
-```
-
-### Layer 2: Semantic Tokens
-
-| Token | Dark Mode Default | Light Mode (`[data-theme="light"]`) | Usage |
+| Token | Dark (default) | Light | Usage |
 | :--- | :--- | :--- | :--- |
-| `--bg-page` | `#07080b` | `#f3f4f7` | Page viewport background |
-| `--bg-card` | `#0f1116` | `#ffffff` | Elevated surface containers |
-| `--bg-chip` | `#181b22` | `#eceef3` | Filter chips, pills, badges |
-| `--bg-hover` | `#181b22` | `#f0f1f5` | Interactive hover highlight |
-| `--divider` | `#232733` | `#e1e4ea` | Hairline dividers and rules |
-| `--bg-elevated` | `#181b22` | `#f3f4f7` | Inset panels inside a card (value boxes, skeletons) |
-| `--border-subtle` | = `--divider` | = `--divider` | Hairline outlines where a border is unavoidable |
-| `--text-primary` | `#f4f5f7` (17.5:1) | `#0f1116` (18.5:1) | Headings, titles, primary labels |
-| `--text-secondary` | `#c4c9d2` (11.4:1) | `#3f4654` (9.5:1) | Supporting copy, entity metadata lines |
-| `--text-muted` | `#9aa1ae` (7.1:1) | `#5b6372` (5.9:1) | Timestamps, subtitles, secondary metadata |
-| `--accent` | `#ffb020` (10.3:1) | `#b45309` (5.6:1) | Active chips, logo accent, key links |
-| `--accent-contrast`| `#07080b` | `#ffffff` | Text inside solid accent fills |
-| `--value-text` | `#ffb020` | `#b45309` | Player & club market values |
-| `--trend-up` (alias `--trend-positive`) | `#2ecc71` | `#15803d` (5.0:1) | Positive valuation movements |
-| `--trend-down` (alias `--trend-negative`) | `#ff5a5f` | `#b91c1c` (6.5:1) | Negative valuation movements |
-| `--live` | `#2ecc71` | `#15803d` | Live match minute & pulse dot |
-| `--info` | `#60a5fa` | `#1d4ed8` | Neutral highlights: dates, stat icons, away side |
-| `--highlight` | `#c084fc` | `#7e22ce` | Rare one-off emphasis (VAR reviews) |
-| `--focus-ring` | `#ffb020` | `#b45309` | 2px visible keyboard focus indicator |
+| `--bg-chrome` | `#1e1240` | `#1e1240` | Top bar and hero bands (`.chrome` class), same in both themes |
+| `--bg-page` | `#0f0a1f` | `#f0f2f5` | Page background |
+| `--bg-card` | `#1a1330` | `#ffffff` | Cards |
+| `--bg-chip` / `--bg-elevated` | `#241a40` | `#f3eeff` / `#f0f2f5` | Chips, inset panels |
+| `--bg-hover` | `#2a1f4d` | `#f3eeff` | Hover |
+| `--divider` | `#2a2145` | `#e6e8ec` | Hairlines |
+| `--text-primary` | `#f4f1ff` | `#0e1a2b` | Titles |
+| `--text-secondary` | `#c4bdd9` | `#4b5565` | Supporting copy |
+| `--text-muted` | `#9a92b3` | `#5b6472` | Metadata |
+| `--accent` | `#a78bfa` | `#7c3aed` | Active chips, links, logo |
+| `--value-text` | `#a78bfa` | `#6d28d9` | Market values and fees |
+| `--live` | `#fb7185` | `#ce1240` | Live minute and pulse |
+| `--trend-up` / `--trend-down` | `#32d583` / `#f97066` | `#067647` / `#b42318` | Value movement |
 
-Light-mode trend, live, focus and chart colours are redefined explicitly: the dark-theme
-greens, reds and amber fall to 1.8–3:1 on white.
+`.chrome` re-points the text, chip, hover and accent tokens for content on the purple chrome, so any component placed inside it adapts without extra classes.
 
-### Layer 2a: Typography
+### Typography
 
-**Archivo** (Omnibus-Type, SIL OFL) is the single family, loaded by `next/font/google` in
-`src/app/layout.tsx` as a variable font with weight (100–900) and width (62–125) axes.
-One family, two voices:
+- **Figtree** (`--font-sans`) for all UI copy.
+- **Oxanium** (`--font-figure`, via the `.figure` utility) for scores, fees and market values, always with tabular figures.
+- Both load through `next/font` in `src/app/layout.tsx`.
 
-| Role | Width | Weight | Where |
-| :--- | :--- | :--- | :--- |
-| UI and body copy | 100% (normal) | 400–600 | Everything by default |
-| Headings | `--stretch-heading` (87.5%) | 700–900 | `h1`, `h2` (base layer), with `text-wrap: balance` |
-| Figures | `--stretch-figure` (80%) | 700–900 | `.figure` utility: scores, fees, market values |
+### Radii and density
 
-- Why Archivo: a grotesque with sports/broadcast character whose width axis gives a
-  condensed scoreboard voice for numbers without loading a second family, and it ships
-  tabular lining figures, so live scores and valuations never jitter.
-- Only the `latin` subset is preloaded (~90 kB). The generated `@font-face` rules also
-  cover `latin-ext`, which downloads on demand for names such as Modrić or Aktürkoğlu.
-- Use `.figure` on any bold number in `--value-text` and on scores; don't use it on labels.
+`--radius-sm/md/lg` are 6/8/12px, cards use 12px corners and 16px padding, and rows are 56px tall, in line with the app's Flashscore-style density.
 
 ### Layer 3: Component Dimensions
 

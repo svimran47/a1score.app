@@ -71,26 +71,24 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Headings use Archivo's semi-condensed width: denser, more "scoreboard",
-     and long club/player names fit on one line more often. */
   h1,
   h2 {
-    font-stretch: var(--stretch-heading);
     text-wrap: balance;
+    letter-spacing: -0.01em;
   }
 
   h1 {
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
   }
 }
 
 @layer utilities {
-  /* Scores, fees and market values: condensed, lining, tabular figures so
+  /* Scores, fees and market values: Oxanium, tabular figures so
      live-updating numbers never jitter and big money reads at a glance. */
   .figure {
-    font-stretch: var(--stretch-figure);
+    font-family: var(--font-figure);
     font-variant-numeric: tabular-nums lining-nums;
-    letter-spacing: -0.005em;
+    letter-spacing: 0;
   }
 }
 

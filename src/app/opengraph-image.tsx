@@ -31,7 +31,7 @@ export default async function Image() {
               width: "48px",
               height: "48px",
               borderRadius: "14px",
-              background: `linear-gradient(135deg, ${OG_COLORS.amber400}, ${OG_COLORS.amber500})`,
+              background: `linear-gradient(135deg, ${OG_COLORS.accent}, ${OG_COLORS.accentStrong})`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -43,14 +43,14 @@ export default async function Image() {
             A1
           </div>
           <span style={{ fontSize: "28px", fontWeight: 800, color: OG_COLORS.white }}>
-            a1score<span style={{ color: OG_COLORS.amber400 }}>.app</span>
+            a1score<span style={{ color: OG_COLORS.accent }}>.app</span>
           </span>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", width: "100%" }}>
           <span
             style={{
-              color: OG_COLORS.amber400,
+              color: OG_COLORS.accent,
               fontSize: "18px",
               fontWeight: 700,
               textTransform: "uppercase",

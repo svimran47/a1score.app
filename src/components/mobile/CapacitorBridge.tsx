@@ -90,7 +90,7 @@ export function CapacitorBridge() {
             const { StatusBar, Style } = await import("@capacitor/status-bar");
             await StatusBar.setStyle({ style: Style.Dark });
             if (Capacitor.getPlatform() === "android") {
-              await StatusBar.setBackgroundColor({ color: "#0a0d12" }); // color-ignore: Native Android status bar API requires hex
+              await StatusBar.setBackgroundColor({ color: "#1e1240" }); // color-ignore: Native Android status bar API requires hex
             }
           } catch (e) {
             console.warn("[Capacitor] StatusBar init error:", e);

@@ -30,7 +30,7 @@ test("Token Mapping Parity: tokens.css <-> src/lib/og/colors.ts", () => {
   const tokensCss = fs.readFileSync(tokensPath, "utf-8");
 
   // Regex to extract variable definitions: --token-name: #hex;
-  const primitiveRegex = /--(ink-950|ink-900|ink-800|ink-700|gray-100|gray-400|amber-400|amber-500|green-500|red-500|blue-500|white):\s*(#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3});/g;
+  const primitiveRegex = /--(royal-950|royal-900|royal-800|royal-700|royal-chrome|lilac-50|lilac-200|lilac-400|violet-400|violet-600|green-400|red-400|white):\s*(#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3});/g;
 
   const extractedPrimitives: Record<string, string> = {};
   let match: RegExpExecArray | null;
@@ -39,29 +39,47 @@ test("Token Mapping Parity: tokens.css <-> src/lib/og/colors.ts", () => {
   }
 
   // 1. Verify all Layer 1 primitive tokens match exactly
-  assert.equal(OG_COLORS.ink950.toLowerCase(), extractedPrimitives["ink-950"], "ink-950 mismatch");
-  assert.equal(OG_COLORS.ink900.toLowerCase(), extractedPrimitives["ink-900"], "ink-900 mismatch");
-  assert.equal(OG_COLORS.ink800.toLowerCase(), extractedPrimitives["ink-800"], "ink-800 mismatch");
-  assert.equal(OG_COLORS.ink700.toLowerCase(), extractedPrimitives["ink-700"], "ink-700 mismatch");
-  assert.equal(OG_COLORS.gray100.toLowerCase(), extractedPrimitives["gray-100"], "gray-100 mismatch");
-  assert.equal(OG_COLORS.gray400.toLowerCase(), extractedPrimitives["gray-400"], "gray-400 mismatch");
-  assert.equal(OG_COLORS.amber400.toLowerCase(), extractedPrimitives["amber-400"], "amber-400 mismatch");
-  assert.equal(OG_COLORS.amber500.toLowerCase(), extractedPrimitives["amber-500"], "amber-500 mismatch");
-  assert.equal(OG_COLORS.green500.toLowerCase(), extractedPrimitives["green-500"], "green-500 mismatch");
-  assert.equal(OG_COLORS.red500.toLowerCase(), extractedPrimitives["red-500"], "red-500 mismatch");
-  assert.equal(OG_COLORS.blue500.toLowerCase(), extractedPrimitives["blue-500"], "blue-500 mismatch");
-  assert.equal(OG_COLORS.white.toLowerCase(), extractedPrimitives["white"], "white mismatch");
+  const primitives: [keyof typeof OG_COLORS, string][] = [
+    ["royal950", "royal-950"],
+    ["royal900", "royal-900"],
+    ["royal800", "royal-800"],
+    ["royal700", "royal-700"],
+    ["royalChrome", "royal-chrome"],
+    ["lilac50", "lilac-50"],
+    ["lilac200", "lilac-200"],
+    ["lilac400", "lilac-400"],
+    ["violet400", "violet-400"],
+    ["violet600", "violet-600"],
+    ["green400", "green-400"],
+    ["red400", "red-400"],
+    ["white", "white"],
+  ];
+  for (const [key, token] of primitives) {
+    assert.equal(OG_COLORS[key].toLowerCase(), extractedPrimitives[token], `${token} mismatch`);
+  }
 
-  // 2. Verify semantic mappings agree with tokens.css Layer 2 definitions
-  assert.equal(OG_COLORS.bgPage, OG_COLORS.ink950, "--bg-page must map to --ink-950");
-  assert.equal(OG_COLORS.bgCard, OG_COLORS.ink900, "--bg-card must map to --ink-900");
-  assert.equal(OG_COLORS.bgElevated, OG_COLORS.ink800, "--bg-chip must map to --ink-800");
-  assert.equal(OG_COLORS.divider, OG_COLORS.ink700, "--divider must map to --ink-700");
-  assert.equal(OG_COLORS.textPrimary, OG_COLORS.gray100, "--text-primary must map to --gray-100");
-  assert.equal(OG_COLORS.textMuted, OG_COLORS.gray400, "--text-muted must map to --gray-400");
-  assert.equal(OG_COLORS.valueText, OG_COLORS.amber400, "--value-text must map to --amber-400");
-  assert.equal(OG_COLORS.trendUp, OG_COLORS.green500, "--trend-up must map to --green-500");
-  assert.equal(OG_COLORS.trendDown, OG_COLORS.red500, "--trend-down must map to --red-500");
+  // 2. Verify semantic mappings agree with tokens.css Layer 2 (dark) definitions
+  const semantic: [keyof typeof OG_COLORS, string, keyof typeof OG_COLORS][] = [
+    ["bgPage", "bg-page", "royal950"],
+    ["bgCard", "bg-card", "royal900"],
+    ["bgElevated", "bg-elevated", "royal800"],
+    ["bgChrome", "bg-chrome", "royalChrome"],
+    ["divider", "divider", "royal700"],
+    ["textPrimary", "text-primary", "lilac50"],
+    ["textMuted", "text-muted", "lilac400"],
+    ["accent", "accent", "violet400"],
+    ["valueText", "value-text", "violet400"],
+    ["trendUp", "trend-up", "green400"],
+    ["trendDown", "trend-down", "red400"],
+  ];
+  for (const [key, token, primitive] of semantic) {
+    assert.equal(OG_COLORS[key], OG_COLORS[primitive], `--${token} must map to ${primitive}`);
+    const primitiveToken = primitives.find(([k]) => k === primitive)![1];
+    assert.ok(
+      new RegExp(`--${token}:\\s*var\\(--${primitiveToken}\\);`).test(tokensCss),
+      `tokens.css --${token} must be var(--${primitiveToken})`
+    );
+  }
 });
 
 test("Metadata Image URLs: constructMetadata produces fully-qualified absolute OG & Twitter image URLs", () => {

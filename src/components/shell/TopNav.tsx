@@ -176,7 +176,7 @@ function TopNavContent() {
   return (
     <>
       <header
-        className="sticky top-0 z-40 w-full bg-bg-page/90 backdrop-blur-xl border-b border-[var(--divider)] transition-colors"
+        className="chrome sticky top-0 z-40 w-full border-b border-[var(--divider)]"
         style={{
           height: "calc(var(--nav-height) + env(safe-area-inset-top))",
           paddingTop: "env(safe-area-inset-top, 0px)",
@@ -288,7 +288,7 @@ export function TopNav() {
     <Suspense
       fallback={
         <header
-          className="sticky top-0 z-40 w-full bg-bg-page/90 backdrop-blur-xl border-b border-[var(--divider)]"
+          className="chrome sticky top-0 z-40 w-full border-b border-[var(--divider)]"
           style={{ height: "calc(var(--nav-height) + env(safe-area-inset-top))" }}
         />
       }
