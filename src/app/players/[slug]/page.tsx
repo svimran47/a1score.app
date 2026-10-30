@@ -15,6 +15,10 @@ import { HonoursSection } from "@/components/players/HonoursSection";
 import { ProfileFactsSection } from "@/components/KeyFacts";
 import { NewsSection } from "@/components/news/RelatedNewsCard";
 import type { PlayerProfileVM } from "@/lib/data/playerProfile.types";
+import Link from "next/link";
+import { getRankingsForPlayer } from "@/lib/rankings";
+import { getCanonicalPosition } from "@/lib/positions";
+import { calculateAge } from "@/lib/utils";
 
 export const revalidate = 3600; // ISR revalidation every hour
 export const runtime = "edge";
@@ -143,6 +147,12 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   };
 
   const sections = navSections(vm);
+  const rankings = getRankingsForPlayer({
+    positionGroup: identity.position ? getCanonicalPosition(identity.position).group : null,
+    age: calculateAge(identity.dob),
+    nationality: identity.nationality,
+    leagueName: club?.league?.name,
+  });
 
   return (
     <article id="top" aria-labelledby="player-name" className="@container/profile max-w-[720px] mx-auto">
@@ -172,6 +182,23 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
         <HonoursSection vm={vm} />
         <ProfileFactsSection vm={vm} />
         <NewsSection vm={vm} />
+        {rankings.length > 0 && (
+          <nav aria-label="Rankings">
+            <h2 className="text-lg font-bold tracking-tight text-[var(--text-primary)] mb-3">Rankings</h2>
+            <ul className="flex flex-wrap gap-2">
+              {rankings.map((r) => (
+                <li key={r.slug}>
+                  <Link
+                    href={`/rankings/${r.slug}`}
+                    className="inline-flex min-h-[36px] items-center rounded-[var(--radius-pill)] bg-[var(--bg-chip)] px-3 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+                  >
+                    {r.heading}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
       </div>
     </article>
   );

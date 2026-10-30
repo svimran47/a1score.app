@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { getEffectiveSiteUrl } from "@/lib/metadata";
 import { getClubSlug, getLeagueSlug, getPlayerSlug } from "@/lib/slugs";
 import { getMatchesByDate } from "@/lib/fotmob/client";
+import { RANKINGS } from "@/lib/rankings";
 
 export const runtime = "edge";
 export const revalidate = 86400; // Cache sitemap for 24 hours
@@ -76,6 +77,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/rankings`,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/compare`,
       changeFrequency: "weekly",
       priority: 0.75,
@@ -107,6 +113,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${baseUrl}/leagues/${getLeagueSlug(l)}`,
     changeFrequency: "daily",
     priority: 0.85,
+  }));
+
+  // 2b. Ranking landing pages ("most valuable X players")
+  const rankingRoutes: MetadataRoute.Sitemap = RANKINGS.map((r) => ({
+    url: `${baseUrl}/rankings/${r.slug}`,
+    changeFrequency: "daily",
+    priority: 0.8,
   }));
 
   // 3. Dynamic All Public Clubs (Readable Slugs with authentic lastSyncedAt/updatedAt)
@@ -181,5 +194,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.warn("[Sitemap] Failed to fetch finished matches for sitemap:", err);
   }
 
-  return [...staticRoutes, ...leagueRoutes, ...clubRoutes, ...playerRoutes, ...matchRoutes];
+  return [...staticRoutes, ...leagueRoutes, ...rankingRoutes, ...clubRoutes, ...playerRoutes, ...matchRoutes];
 }
