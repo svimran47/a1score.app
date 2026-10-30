@@ -63,7 +63,7 @@ test("isUnder matches the route and its children but not lookalike prefixes", ()
 
 test("More hub lists every feature and account row with a route", () => {
   const keys = [...MORE_FEATURES, ...MORE_ACCOUNT].map((i) => i.key);
-  assert.deepEqual(keys, ["values", "transfers", "tv", "compare", "predict", "lineup", "players", "clubs", "notifications", "settings"]);
+  assert.deepEqual(keys, ["values", "rankings", "transfers", "tv", "compare", "predict", "lineup", "players", "clubs", "notifications", "settings"]);
   assert.equal(new Set([...MORE_FEATURES, ...MORE_ACCOUNT].map((i) => i.href)).size, keys.length);
 });
 

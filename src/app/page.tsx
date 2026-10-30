@@ -15,9 +15,18 @@ import { formatDate } from "@/lib/utils";
 import { getPlayerSlug } from "@/lib/slugs";
 import { SITE_URL } from "@/lib/siteUrl";
 import type { FotmobMatch } from "@/lib/fotmob/client";
+import type { Metadata } from "next";
+import { constructMetadata } from "@/lib/metadata";
 
 export const revalidate = 300;
 export const runtime = "edge";
+
+export const metadata: Metadata = constructMetadata({
+  title: "Live Football Scores, Player Market Values & Transfers",
+  description:
+    "Live football scores, fixtures and lineups with player market values, transfer news and club squad values for the Premier League, LaLiga, Serie A and more.",
+  image: "/opengraph-image",
+});
 
 interface HomeTransferItem {
   id: string;

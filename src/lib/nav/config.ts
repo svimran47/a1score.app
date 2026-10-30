@@ -45,6 +45,7 @@ const MORE_ROUTES = [
   "/more",
   "/settings",
   "/values",
+  "/rankings",
   "/transfers",
   "/tv",
   "/compare",
@@ -115,6 +116,13 @@ export const MORE_FEATURES: MoreItem[] = [
     label: "Market Values",
     description: "Most valuable players and biggest value movers",
     href: "/values",
+    icon: "values",
+  },
+  {
+    key: "rankings",
+    label: "Rankings",
+    description: "Most valuable players by league, position, age and nation",
+    href: "/rankings",
     icon: "values",
   },
   {

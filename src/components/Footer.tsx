@@ -9,6 +9,7 @@ const exploreLinks = [
   { label: "Clubs", href: "/clubs" },
   { label: "Leagues", href: "/leagues" },
   { label: "Market Values", href: "/values" },
+  { label: "Rankings", href: "/rankings" },
   { label: "Transfers", href: "/transfers" },
   { label: "News", href: "/news" },
 ];
