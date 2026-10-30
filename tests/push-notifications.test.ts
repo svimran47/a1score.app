@@ -37,7 +37,7 @@ test("Task A: PWA Manifest & Service Worker verification", () => {
   assert.ok(fs.existsSync(manifestPath), "manifest.ts must exist");
   const manifestContent = fs.readFileSync(manifestPath, "utf-8");
   assert.ok(manifestContent.includes('"standalone"'), "Manifest must specify standalone display");
-  assert.ok(manifestContent.includes("#0a0d12"), "Manifest colors must match theme token #0a0d12");
+  assert.ok(manifestContent.includes("#1e1240"), "Manifest theme colour must match the Royal chrome token #1e1240");
   assert.ok(!manifestContent.includes("Real-time"), "Manifest copy must not promise real-time valuations");
 });
 

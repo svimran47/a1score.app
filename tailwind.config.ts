@@ -78,12 +78,12 @@ const config: Config = {
           950: "var(--ink-950)",
         },
         brand: {
-          50: "#fffbeb",
-          100: "#fef3c7",
-          400: "var(--amber-400)",
-          500: "var(--amber-500)",
-          600: "#d97706",
-          700: "#b45309",
+          50: "var(--violet-50)",
+          100: "#ede4ff",
+          400: "var(--violet-400)",
+          500: "var(--violet-500)",
+          600: "var(--violet-600)",
+          700: "var(--violet-700)",
         },
         pitch: {
           50: "#ecfdf5",

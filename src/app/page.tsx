@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getMostValuablePlayers } from "@/lib/data/players";
 import { getTopClubs } from "@/lib/data/clubs";
 import { getMatchesByDate, TOP_LEAGUE_IDS } from "@/lib/fotmob/client";
@@ -39,6 +40,13 @@ interface HomeTransferItem {
   fee?: number | string | null;
   date?: string | null;
 }
+
+const HERO_LINKS = [
+  { label: "Most valuable players", href: "/values" },
+  { label: "Rankings", href: "/rankings" },
+  { label: "Transfers", href: "/transfers" },
+  { label: "Compare players", href: "/compare" },
+];
 
 function CardNotice({ children }: { children: React.ReactNode }) {
   return <p className="px-4 py-6 text-center text-sm text-[var(--text-muted)]">{children}</p>;
@@ -163,7 +171,25 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
       />
-      <h1 className="sr-only">a1score — Football Market Values, Match Scores & Club Records</h1>
+      <section className="chrome rounded-[var(--card-radius)] px-4 py-4 sm:px-6 sm:py-7">
+        <h1 className="text-xl sm:text-3xl font-bold leading-tight">
+          Live scores, player market values and transfers
+        </h1>
+        <p className="hidden sm:block mt-2 text-base text-[var(--text-secondary)] max-w-[52ch]">
+          Every match across Europe&apos;s top leagues, with what each player is worth right now.
+        </p>
+        <nav aria-label="Popular" className="mt-3 sm:mt-4 -mx-4 px-4 sm:mx-0 sm:px-0 flex gap-2 overflow-x-auto sm:flex-wrap [scrollbar-width:none]">
+          {HERO_LINKS.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="inline-flex shrink-0 min-h-[36px] items-center rounded-[var(--radius-pill)] bg-[var(--bg-chip)] px-3.5 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+            >
+              {l.label}
+            </Link>
+          ))}
+        </nav>
+      </section>
       {/* 1. COMPACT LIVE NOW STRIP (Match rows) */}
       <section>
         <SectionHeader

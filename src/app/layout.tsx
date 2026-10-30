@@ -1,19 +1,29 @@
-import type { Metadata } from "next";
-import { Archivo } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Figtree, Oxanium } from "next/font/google";
 import "./globals.css";
 import { SITE_URL } from "@/lib/metadata";
 import { THEME_BOOT_SCRIPT } from "@/lib/theme";
 
-// Variable font with both axes: weight for hierarchy, width for the condensed
-// heading/figure voice (see --stretch-heading / --stretch-figure in tokens.css).
-// Only latin is preloaded; the generated @font-face rules still include
-// latin-ext, fetched on demand for names such as Modrić, Šeško or Aktürkoğlu.
-const archivo = Archivo({
+// Same pairing as the native app: Figtree for UI copy, Oxanium for scores,
+// fees and market values (the .figure utility in globals.css). Only latin is
+// preloaded; latin-ext is fetched on demand for names such as Modrić or Šeško.
+const figtree = Figtree({
   subsets: ["latin"],
-  axes: ["wdth"],
-  variable: "--font-archivo",
+  variable: "--font-figtree",
   display: "swap",
 });
+
+const oxanium = Oxanium({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  variable: "--font-oxanium",
+  display: "swap",
+});
+
+// Matches the Royal chrome (--royal-chrome) so the mobile browser bar blends in
+export const viewport: Viewport = {
+  themeColor: "#1e1240", // color-ignore: browser theme-color meta requires a literal
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -132,7 +142,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${archivo.variable} dark`} data-theme="dark" suppressHydrationWarning>
+    <html lang="en" className={`${figtree.variable} ${oxanium.variable} dark`} data-theme="dark" suppressHydrationWarning>
       <head>
         {/* Google tag (gtag.js) */}
         <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} />

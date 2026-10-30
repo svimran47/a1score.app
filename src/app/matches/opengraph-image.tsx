@@ -29,7 +29,7 @@ export default async function Image() {
               width: "48px",
               height: "48px",
               borderRadius: "12px",
-              backgroundColor: OG_COLORS.amber400,
+              backgroundColor: OG_COLORS.accent,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -41,14 +41,14 @@ export default async function Image() {
             A1
           </div>
           <span style={{ fontSize: "28px", fontWeight: 800, color: OG_COLORS.textPrimary }}>
-            a1score<span style={{ color: OG_COLORS.amber400 }}>.app</span>
+            a1score<span style={{ color: OG_COLORS.accent }}>.app</span>
           </span>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", width: "100%" }}>
           <span
             style={{
-              color: OG_COLORS.amber400,
+              color: OG_COLORS.accent,
               fontSize: "18px",
               fontWeight: 600,
               marginBottom: "12px",

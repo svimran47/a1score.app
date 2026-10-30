@@ -71,7 +71,7 @@ export default async function Image({ params }: { params: { id: string } }) {
                 width: "44px",
                 height: "44px",
                 borderRadius: "12px",
-                background: `linear-gradient(135deg, ${OG_COLORS.amber400}, ${OG_COLORS.amber500})`,
+                background: `linear-gradient(135deg, ${OG_COLORS.accent}, ${OG_COLORS.accentStrong})`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -83,7 +83,7 @@ export default async function Image({ params }: { params: { id: string } }) {
               A1
             </div>
             <span style={{ fontSize: "26px", fontWeight: 800, color: OG_COLORS.white }}>
-              a1score<span style={{ color: OG_COLORS.amber400 }}>.app</span>
+              a1score<span style={{ color: OG_COLORS.accent }}>.app</span>
             </span>
           </div>
 
@@ -96,7 +96,7 @@ export default async function Image({ params }: { params: { id: string } }) {
               borderRadius: "999px",
               backgroundColor: OG_COLORS.bgElevated,
               border: `1px solid ${OG_COLORS.divider}`,
-              color: OG_COLORS.amber400,
+              color: OG_COLORS.accent,
               fontSize: "13px",
               fontWeight: 800,
               letterSpacing: "1.5px",
@@ -156,7 +156,7 @@ export default async function Image({ params }: { params: { id: string } }) {
                   style={{ objectFit: "contain", maxWidth: "100%", maxHeight: "100%" }}
                 />
               ) : (
-                <span style={{ fontSize: "40px", fontWeight: 800, color: OG_COLORS.amber400 }}>
+                <span style={{ fontSize: "40px", fontWeight: 800, color: OG_COLORS.accent }}>
                   {initials}
                 </span>
               )}
@@ -255,7 +255,7 @@ export default async function Image({ params }: { params: { id: string } }) {
                   color: OG_COLORS.textPrimary,
                 }}
               >
-                <span style={{ color: OG_COLORS.amber400 }}>🏆</span>
+                <span style={{ color: OG_COLORS.accent }}>🏆</span>
                 <span>
                   {uclHonour ? `${uclHonour.titleCount} UCL • ` : ""}
                   {leagueHonour ? `${leagueHonour.titleCount} League Titles` : `${totalHonours} Official Titles`}

@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Football market valuation updates, squad analytics, and club records.",
     start_url: "/",
     display: "standalone",
-    background_color: "#0a0d12", // color-ignore: PWA manifest specification requires hex
-    theme_color: "#0a0d12", // color-ignore: PWA manifest specification requires hex
+    background_color: "#0f0a1f", // color-ignore: PWA manifest specification requires hex
+    theme_color: "#1e1240", // color-ignore: PWA manifest specification requires hex
     orientation: "portrait-primary",
     icons: [
       {
